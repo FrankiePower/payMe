@@ -2,6 +2,17 @@
 
 A comprehensive TypeScript module for blockchain interactions using Coinbase Developer Platform (CDP) SDK. This module provides easy-to-use functions for ENS registration, token transfers, approvals, and transaction management on EVM-compatible chains.
 
+> **🎉 Version 1.1.0 - Major Fixes Released!**
+> 
+> - ✅ **Fixed**: `readContract()` now works with integrated viem publicClient
+> - ✅ **Fixed**: ENS registration now implements full commit-reveal pattern (production-ready!)
+> - ✅ **Fixed**: Proper chain ID mapping for all networks
+> - ✅ **Fixed**: Comprehensive error handling with detailed messages
+> - ✅ **Added**: Custom RPC URL support for better reliability
+> - ✅ **Added**: Configuration utilities for environment management
+> 
+> See [CHANGELOG.md](CHANGELOG.md) for full details.
+
 ## 📋 Table of Contents
 
 - [Features](#features)
@@ -65,7 +76,7 @@ cd blockchain-operations
 ### 2. Install Dependencies
 
 ```bash
-npm install @coinbase/cdp-sdk viem
+npm install @coinbase/cdp-sdk viem dotenv
 ```
 
 ### 3. Install Dev Dependencies
@@ -120,13 +131,24 @@ Create a `.env` file:
 CDP_API_KEY_ID=your_api_key_id_here
 CDP_API_KEY_SECRET=your_api_key_secret_here
 CDP_WALLET_SECRET=optional_wallet_encryption_secret
+
+# Optional: Custom RPC URLs for better reliability
+RPC_URL_ETHEREUM=https://eth-mainnet.g.alchemy.com/v2/YOUR_KEY
+RPC_URL_BASE=https://base-mainnet.g.alchemy.com/v2/YOUR_KEY
+RPC_URL_ETHEREUM_SEPOLIA=https://eth-sepolia.g.alchemy.com/v2/YOUR_KEY
+RPC_URL_BASE_SEPOLIA=https://base-sepolia.g.alchemy.com/v2/YOUR_KEY
 ```
 
 ### 3. Load Environment Variables
 
 ```typescript
-import dotenv from 'dotenv';
-dotenv.config();
+import { getCdpCredentials, getCustomRpcUrls } from "./src/config.js";
+
+// Validates and loads CDP credentials
+const credentials = getCdpCredentials();
+
+// Optional: Load custom RPC URLs
+const customRpcUrls = getCustomRpcUrls();
 ```
 
 ---
@@ -137,17 +159,19 @@ dotenv.config();
 
 ```typescript
 import { CdpClient } from "@coinbase/cdp-sdk";
-import { BlockchainOperations } from "./blockchain.js";
+import { BlockchainOperations } from "./src/blockchain.js";
+import { getCdpCredentials, getCustomRpcUrls } from "./src/config.js";
 import { parseUnits } from "viem";
 
-// Initialize CDP Client
-const cdp = new CdpClient({
-  apiKeyId: process.env.CDP_API_KEY_ID!,
-  apiKeySecret: process.env.CDP_API_KEY_SECRET!,
-});
+// Initialize CDP Client with credentials
+const credentials = getCdpCredentials();
+const cdp = new CdpClient(credentials);
 
-// Create blockchain operations instance
-const blockchain = new BlockchainOperations(cdp.openApiClient);
+// Create blockchain operations instance with optional custom RPCs
+const customRpcUrls = getCustomRpcUrls();
+const blockchain = new BlockchainOperations(cdp.openApiClient, {
+  rpcUrls: customRpcUrls, // Optional: for better reliability
+});
 
 // Get or create an account
 const account = await cdp.evm.createAccount({ name: "MyWallet" });
@@ -177,13 +201,18 @@ console.log(`Transaction hash: ${result.transactionHash}`);
 #### Constructor
 
 ```typescript
-new BlockchainOperations(client: CdpOpenApiClientType)
+new BlockchainOperations(
+  client: CdpOpenApiClientType,
+  options?: { rpcUrls?: Record<string, string> }
+)
 ```
 
 Creates a new instance of blockchain operations.
 
 **Parameters:**
 - `client` - CDP OpenAPI client instance
+- `options` (optional):
+  - `rpcUrls` - Custom RPC URLs for reading blockchain data (e.g., `{ "base": "https://..." }`)
 
 ---
 
@@ -191,7 +220,16 @@ Creates a new instance of blockchain operations.
 
 #### `registerENSName(options: RegisterENSOptions): Promise<TransactionResult>`
 
-Register a new ENS domain name.
+Register a new ENS domain name using the full commit-reveal pattern.
+
+✅ **Production-ready** - Implements complete ENS security requirements:
+1. Checks name availability
+2. Gets accurate pricing
+3. Submits commitment transaction
+4. Waits required 60 seconds
+5. Completes registration
+
+⏱️ **Note:** Takes ~60 seconds due to ENS security requirements
 
 **Parameters:**
 
@@ -208,12 +246,15 @@ Register a new ENS domain name.
 **Example:**
 
 ```typescript
+// This will take ~60 seconds to complete
 const result = await blockchain.registerENSName({
   owner: "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",
-  name: "myname",
+  name: "myuniquename",
   durationInYears: 1,
   network: "ethereum-sepolia"
 });
+
+console.log(`Registered! Tx: ${result.transactionHash}`);
 ```
 
 #### `checkENSAvailability(name: string, network: Network): Promise<boolean>`
@@ -441,7 +482,7 @@ const result = await blockchain.sendTransaction({
 
 Read data from a smart contract (view/pure functions).
 
-⚠️ **Note:** CDP SDK doesn't support direct reads. Use viem or ethers.js for this.
+✅ **Now fully working** with integrated viem public client.
 
 **Parameters:**
 
@@ -453,24 +494,19 @@ Read data from a smart contract (view/pure functions).
 | `args` | `unknown[]` | ❌ | Function arguments |
 | `network` | `Network` | ✅ | Network to use |
 
-**Example (with external RPC):**
+**Example:**
 
 ```typescript
-import { createPublicClient, http } from "viem";
-import { base } from "viem/chains";
-
-// Use viem for read operations
-const publicClient = createPublicClient({
-  chain: base,
-  transport: http()
-});
-
-const balance = await publicClient.readContract({
-  address: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+// Read operations now work directly!
+const balance = await blockchain.readContract({
+  contractAddress: "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
   abi: ERC20_ABI,
   functionName: "balanceOf",
-  args: ["0x742d35Cc6634C0532925a3b844Bc454e4438f44e"]
+  args: ["0x742d35Cc6634C0532925a3b844Bc454e4438f44e"],
+  network: "base"
 });
+
+console.log(`Balance: ${balance}`);
 ```
 
 ---

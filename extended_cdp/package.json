@@ -2,17 +2,35 @@
   "name": "blockchain-operations",
   "version": "1.0.0",
   "type": "module",
+  "description": "Comprehensive TypeScript module for blockchain interactions using Coinbase Developer Platform SDK",
+  "main": "./dist/blockchain.js",
+  "types": "./dist/blockchain.d.ts",
   "scripts": {
     "start": "tsx example.ts",
+    "build": "tsc",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@coinbase/cdp-sdk": "latest",
-    "viem": "^2.0.0"
+    "@coinbase/cdp-sdk": "^0.0.12",
+    "dotenv": "^16.4.5",
+    "viem": "^2.21.0"
   },
   "devDependencies": {
-    "@types/node": "^20.0.0",
-    "tsx": "^4.0.0",
-    "typescript": "^5.0.0"
-  }
+    "@types/node": "^22.0.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  },
+  "keywords": [
+    "blockchain",
+    "ethereum",
+    "base",
+    "coinbase",
+    "cdp",
+    "web3",
+    "erc20",
+    "ens",
+    "cross-chain",
+    "layerzero"
+  ],
+  "license": "MIT"
 }

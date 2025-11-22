@@ -8,7 +8,16 @@
  * - Send & read transactions
  */
 
-import { encodeFunctionData, parseEther, parseUnits, formatUnits } from "viem";
+import { 
+  encodeFunctionData, 
+  parseEther, 
+  parseUnits, 
+  formatUnits,
+  createPublicClient,
+  http,
+  type PublicClient
+} from "viem";
+import { mainnet, base, baseSepolia, sepolia } from "viem/chains";
 import { serializeTransaction } from "viem";
 import type { TransactionRequestEIP1559 } from "viem";
 import type { CdpOpenApiClientType } from "@coinbase/cdp-sdk";
@@ -130,25 +139,79 @@ export interface TokenInfo {
 }
 
 // ============================================================================
+// CHAIN ID MAPPING
+// ============================================================================
+
+const CHAIN_ID_MAP: Record<string, number> = {
+  "ethereum": 1,
+  "ethereum-sepolia": 11155111,
+  "base": 8453,
+  "base-sepolia": 84532,
+};
+
+const VIEM_CHAIN_MAP = {
+  "ethereum": mainnet,
+  "ethereum-sepolia": sepolia,
+  "base": base,
+  "base-sepolia": baseSepolia,
+} as const;
+
+// ============================================================================
 // MAIN BLOCKCHAIN CLASS
 // ============================================================================
 
 export class BlockchainOperations {
-  constructor(private client: CdpOpenApiClientType) {}
+  private publicClients: Map<string, PublicClient> = new Map();
+  private customRpcUrls?: Record<string, string>;
+
+  constructor(
+    private client: CdpOpenApiClientType,
+    options?: { rpcUrls?: Record<string, string> }
+  ) {
+    this.customRpcUrls = options?.rpcUrls;
+  }
+
+  /**
+   * Get or create a viem public client for reading blockchain data
+   */
+  private getPublicClient(network: "ethereum" | "base" | "ethereum-sepolia" | "base-sepolia"): PublicClient {
+    if (!this.publicClients.has(network)) {
+      const chain = VIEM_CHAIN_MAP[network];
+      const rpcUrl = this.customRpcUrls?.[network];
+
+      const client = createPublicClient({
+        chain,
+        transport: http(rpcUrl),
+      });
+
+      this.publicClients.set(network, client);
+    }
+
+    return this.publicClients.get(network)!;
+  }
+
+  /**
+   * Get chain ID for a network
+   */
+  private getChainId(network: string): number {
+    const chainId = CHAIN_ID_MAP[network];
+    if (!chainId) {
+      throw new Error(`Unsupported network: ${network}`);
+    }
+    return chainId;
+  }
 
   // ==========================================================================
   // 1. CREATE ENS NAME
   // ==========================================================================
 
   /**
-   * Register an ENS name (simplified version - production requires commit/reveal)
+   * Register an ENS name using the proper commit-reveal pattern
    * 
-   * ⚠️ IMPORTANT: Real ENS registration requires a two-step process:
-   * 1. Commit (makeCommitment + commit)
-   * 2. Wait 60 seconds
-   * 3. Register
-   * 
-   * This is a simplified version for demonstration.
+   * This implements the full two-step ENS registration process:
+   * 1. Commit to the name registration
+   * 2. Wait 60 seconds (ENS security requirement)
+   * 3. Complete the registration
    * 
    * @example
    * ```ts
@@ -158,42 +221,50 @@ export class BlockchainOperations {
    *   durationInYears: 1,
    *   network: "ethereum-sepolia"
    * });
+   * // This will take ~60 seconds to complete due to ENS security requirements
    * ```
    */
   async registerENSName(options: RegisterENSOptions): Promise<TransactionResult> {
     const { owner, name, durationInYears, network, idempotencyKey } = options;
 
-    // Get contract address
+    // Get contract addresses
     const controllerAddress = CONTRACT_ADDRESSES[network].ensEthRegistrarController;
     const resolverAddress = CONTRACT_ADDRESSES[network].ensPublicResolver;
 
-    // Generate random secret for commit/reveal
+    console.log(`\n🔍 Starting ENS registration for ${name}.eth...`);
+
+    // Step 1: Check availability
+    console.log(`1️⃣  Checking availability...`);
+    const isAvailable = await this.checkENSAvailability(name, network);
+    
+    if (!isAvailable) {
+      throw new Error(`ENS name "${name}.eth" is not available for registration`);
+    }
+    console.log(`   ✅ Name is available`);
+
+    // Step 2: Get registration price
+    console.log(`2️⃣  Getting registration price...`);
+    const duration = BigInt(durationInYears * 365 * 24 * 60 * 60);
+    const rentPrice = await this.readContract({
+      contractAddress: controllerAddress as Address,
+      abi: ENS_ETH_REGISTRAR_CONTROLLER_ABI,
+      functionName: "rentPrice",
+      args: [name, duration],
+      network,
+    }) as bigint;
+
+    // Add 10% buffer for price fluctuations
+    const value = (rentPrice * 110n) / 100n;
+    console.log(`   💰 Price: ${formatUnits(value, 18)} ETH`);
+
+    // Step 3: Generate secret and make commitment
+    console.log(`3️⃣  Creating commitment...`);
     const secret = `0x${Array.from({ length: 64 }, () =>
       Math.floor(Math.random() * 16).toString(16)
     ).join("")}` as Hex;
 
-    const duration = BigInt(durationInYears * 365 * 24 * 60 * 60); // Convert years to seconds
-
-    // Step 1: Check if name is available
-    const availableData = encodeFunctionData({
-      abi: ENS_ETH_REGISTRAR_CONTROLLER_ABI,
-      functionName: "available",
-      args: [name],
-    });
-
-    console.log(`Checking availability for ${name}.eth...`);
-
-    // Step 2: Get rent price
-    const rentPriceData = encodeFunctionData({
-      abi: ENS_ETH_REGISTRAR_CONTROLLER_ABI,
-      functionName: "rentPrice",
-      args: [name, duration],
-    });
-
-    console.log(`Getting rent price for ${name}.eth...`);
-
-    // Step 3: Make commitment
-    const commitmentData = encodeFunctionData({
+    const commitmentHash = await this.readContract({
+      contractAddress: controllerAddress as Address,
       abi: ENS_ETH_REGISTRAR_CONTROLLER_ABI,
       functionName: "makeCommitment",
       args: [
@@ -202,15 +273,40 @@ export class BlockchainOperations {
         duration,
         secret,
         resolverAddress,
-        [], // data
-        false, // reverseRecord
-        0, // ownerControlledFuses
+        [],
+        false,
+        0,
       ],
+      network,
+    }) as Hex;
+
+    // Step 4: Submit commitment transaction
+    console.log(`4️⃣  Submitting commitment transaction...`);
+    const commitData = encodeFunctionData({
+      abi: ENS_ETH_REGISTRAR_CONTROLLER_ABI,
+      functionName: "commit",
+      args: [commitmentHash],
     });
 
-    console.log(`Creating commitment for ${name}.eth...`);
+    const commitTx = await this.sendTransaction({
+      from: owner,
+      transaction: {
+        to: controllerAddress as Address,
+        data: commitData,
+      },
+      network,
+      idempotencyKey: idempotencyKey ? `${idempotencyKey}-commit` : undefined,
+    });
 
-    // Step 4: Register (simplified - in production, you need to commit first and wait 60s)
+    console.log(`   ✅ Commitment transaction: ${commitTx.transactionHash}`);
+
+    // Step 5: Wait 60 seconds (ENS requirement)
+    console.log(`5️⃣  Waiting 60 seconds (ENS security requirement)...`);
+    await this.sleep(60000);
+    console.log(`   ✅ Wait complete`);
+
+    // Step 6: Complete registration
+    console.log(`6️⃣  Completing registration...`);
     const registerData = encodeFunctionData({
       abi: ENS_ETH_REGISTRAR_CONTROLLER_ABI,
       functionName: "register",
@@ -226,21 +322,28 @@ export class BlockchainOperations {
       ],
     });
 
-    // Estimate cost (0.01 ETH for demo - real price comes from rentPrice call)
-    const value = parseEther("0.01");
-
-    const transaction: TransactionRequestEIP1559 = {
-      to: controllerAddress as `0x${string}`,
-      data: registerData,
-      value,
-    };
-
-    return this.sendTransaction({
+    const registerTx = await this.sendTransaction({
       from: owner,
-      transaction,
+      transaction: {
+        to: controllerAddress as Address,
+        data: registerData,
+        value,
+      },
       network,
-      idempotencyKey,
+      idempotencyKey: idempotencyKey ? `${idempotencyKey}-register` : undefined,
     });
+
+    console.log(`\n✅ Successfully registered ${name}.eth!`);
+    console.log(`   Transaction: ${registerTx.transactionHash}`);
+
+    return registerTx;
+  }
+
+  /**
+   * Helper method to sleep
+   */
+  private sleep(ms: number): Promise<void> {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   /**
@@ -464,25 +567,62 @@ export class BlockchainOperations {
   async sendTransaction(options: SendTransactionOptions): Promise<TransactionResult> {
     const { from, transaction, network, idempotencyKey } = options;
 
-    // Serialize the transaction
-    const serializedTx = serializeTransaction({
-      ...transaction,
-      chainId: 1, // CDP API will use the correct chainId based on network
-      type: "eip1559",
-    });
+    try {
+      // Get correct chain ID for the network
+      const chainId = this.getChainId(network);
 
-    const result = await this.client.sendEvmTransaction(
-      from,
-      {
-        transaction: serializedTx,
-        network: network as any,
-      },
-      idempotencyKey
-    );
+      // Serialize the transaction with proper chain ID
+      const serializedTx = serializeTransaction({
+        ...transaction,
+        chainId,
+        type: "eip1559",
+      });
 
-    return {
-      transactionHash: result.transactionHash as Hex,
-    };
+      const result = await this.client.sendEvmTransaction(
+        from,
+        {
+          transaction: serializedTx,
+          network: network as any,
+        },
+        idempotencyKey
+      );
+
+      return {
+        transactionHash: result.transactionHash as Hex,
+      };
+    } catch (error: any) {
+      // Enhanced error handling for common CDP API errors
+      if (error?.code === "INSUFFICIENT_FUNDS" || error?.message?.includes("insufficient")) {
+        throw new Error(
+          `Insufficient balance for transaction on ${network}. Please ensure the account has enough funds.`
+        );
+      }
+
+      if (error?.code === "UNAUTHORIZED" || error?.status === 401) {
+        throw new Error(
+          "CDP API authentication failed. Please check your API credentials."
+        );
+      }
+
+      if (error?.code === "RATE_LIMIT_EXCEEDED" || error?.status === 429) {
+        throw new Error(
+          "CDP API rate limit exceeded. Please wait a moment and try again."
+        );
+      }
+
+      if (error?.message?.includes("nonce")) {
+        throw new Error(
+          `Transaction nonce error on ${network}. The account may have pending transactions.`
+        );
+      }
+
+      // Re-throw with more context
+      throw new Error(
+        `Failed to send transaction on ${network}: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
+    }
   }
 
   // ==========================================================================
@@ -492,11 +632,7 @@ export class BlockchainOperations {
   /**
    * Read data from a contract (view/pure functions)
    * 
-   * ⚠️ NOTE: CDP SDK doesn't have native read support.
-   * This is a placeholder. In production, you'd use:
-   * - viem's publicClient.readContract()
-   * - ethers.js Contract.call()
-   * - Or a third-party RPC provider
+   * Uses viem's public client for read-only calls.
    * 
    * @example
    * ```ts
@@ -512,45 +648,24 @@ export class BlockchainOperations {
   async readContract(options: ReadContractOptions): Promise<unknown> {
     const { contractAddress, abi, functionName, args = [], network } = options;
 
-    // Encode the function call
-    const data = encodeFunctionData({
-      abi: abi as any,
-      functionName,
-      args,
-    });
+    try {
+      const publicClient = this.getPublicClient(network);
 
-    console.warn(
-      "⚠️ CDP SDK doesn't support direct contract reads. " +
-      "Use viem publicClient or ethers.js for read operations."
-    );
+      const result = await publicClient.readContract({
+        address: contractAddress,
+        abi: abi as any,
+        functionName,
+        args,
+      });
 
-    // In a real implementation, you would:
-    // 1. Use viem's createPublicClient() with a public RPC
-    // 2. Or use ethers.js with a provider
-    // 3. Or use a service like Alchemy/Infura
-
-    throw new Error(
-      "Read operations are not supported directly by CDP SDK. " +
-      "Please use viem publicClient or ethers.js for read-only calls."
-    );
-
-    // Example implementation with viem (commented out):
-    /*
-    import { createPublicClient, http } from 'viem';
-    import { mainnet, base } from 'viem/chains';
-    
-    const client = createPublicClient({
-      chain: network === 'ethereum' ? mainnet : base,
-      transport: http()
-    });
-    
-    return await client.readContract({
-      address: contractAddress,
-      abi: abi as any,
-      functionName,
-      args
-    });
-    */
+      return result;
+    } catch (error) {
+      throw new Error(
+        `Failed to read contract ${contractAddress} on ${network}: ${
+          error instanceof Error ? error.message : "Unknown error"
+        }`
+      );
+    }
   }
 
   // ==========================================================================
