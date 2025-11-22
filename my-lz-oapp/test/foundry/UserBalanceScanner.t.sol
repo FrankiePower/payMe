@@ -3,7 +3,6 @@ pragma solidity ^0.8.22;
 
 import "forge-std/Test.sol";
 import "./UserBalanceScannerHarness.sol";
-import "../../contracts/USDCBalanceFetcher.sol";
 import { Origin, MessagingFee, MessagingReceipt } from "@layerzerolabs/oapp-evm/contracts/oapp/OApp.sol";
 
 contract MockERC20 {
@@ -44,6 +43,40 @@ contract MockLayerZeroEndpointV2 {
     }
 
     function setDelegate(address) external {}
+}
+
+// Mock USDCBalanceFetcher for testing
+contract USDCBalanceFetcher {
+    struct BalanceData {
+        uint256 balance;
+        uint256 minThreshold;
+        uint256 usdcAmount;
+        bool meetsThreshold;
+    }
+
+    address public usdcAddress;
+
+    constructor(address _usdc) {
+        usdcAddress = _usdc;
+    }
+
+    function fetchUSDCBalance(address wallet) external view returns (uint256) {
+        return MockERC20(usdcAddress).balanceOf(wallet);
+    }
+
+    function fetchUSDCBalanceWithThreshold(
+        address wallet,
+        uint256 minThreshold,
+        uint256 usdcAmount
+    ) external view returns (BalanceData memory) {
+        uint256 balance = MockERC20(usdcAddress).balanceOf(wallet);
+        return BalanceData({
+            balance: balance,
+            minThreshold: minThreshold,
+            usdcAmount: usdcAmount,
+            meetsThreshold: balance >= minThreshold
+        });
+    }
 }
 
 contract UserBalanceScannerTest is Test {
