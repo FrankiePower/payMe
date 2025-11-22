@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.22;
 
-import { OApp, Origin, MessagingFee } from "@layerzerolabs/oapp-evm/contracts/oapp/OApp.sol";
+import { OApp, Origin, MessagingFee, MessagingReceipt } from "@layerzerolabs/oapp-evm/contracts/oapp/OApp.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
@@ -176,10 +176,10 @@ contract SourceChainInitiator is OApp {
         bytes memory message = abi.encode(requestId, amount, pendingTransfers[transferId].user);
 
         // Approve USDC to OFT bridge
-        usdcToken.safeApprove(oftBridge, amount);
+        usdcToken.safeIncreaseAllowance(oftBridge, amount);
 
         // Send via LayerZero
-        bytes32 guid = _lzSend(
+        MessagingReceipt memory receipt = _lzSend(
             destinationChain,
             message,
             options,
@@ -190,7 +190,7 @@ contract SourceChainInitiator is OApp {
         // Mark as sent
         pendingTransfers[transferId].sent = true;
 
-        emit TransferSent(transferId, requestId, amount, guid);
+        emit TransferSent(transferId, requestId, amount, receipt.guid);
     }
 
     /**
