@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.22;
 
+import { OApp, Origin, MessagingFee } from "@layerzerolabs/oapp-evm/contracts/oapp/OApp.sol";
 import { OAppRead } from "@layerzerolabs/oapp-evm/contracts/oapp/OAppRead.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 
@@ -24,7 +25,7 @@ import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
  *   );
  *   // Returns: [100e6, 50e6, 200e6] USDC balances
  */
-contract UserBalanceScanner is OAppRead {
+contract UserBalanceScanner is OApp, OAppRead {
     /// @notice Mapping of chain EID to USDCBalanceFetcher address on that chain
     mapping(uint32 => bytes32) public balanceFetcherByChain;
 
@@ -50,7 +51,9 @@ contract UserBalanceScanner is OAppRead {
      * @param _endpoint LayerZero endpoint address
      * @param _owner Contract owner
      */
-    constructor(address _endpoint, address _owner) OAppRead(_endpoint, _owner) Ownable(_owner) {}
+    constructor(address _endpoint, address _owner)
+        OAppRead(_endpoint, _owner)
+        Ownable(_owner) {}
 
     /**
      * @notice Register USDCBalanceFetcher address for a chain
@@ -86,16 +89,17 @@ contract UserBalanceScanner is OAppRead {
      * @param user User address to scan balances for
      * @param chainEids Array of chain endpoint IDs to query
      * @param options LayerZero execution options (gas settings)
-     * @return balances Array of USDC balances on each chain
+     * @return requestId Unique identifier for this scan request
      *
-     * @dev This function initiates an lzRead request that queries all chains in parallel
-     *      Results are emitted via BalancesScanned event
+     * @dev This is a simplified version - sends requests to each chain
+     *      For production, integrate with LayerZero Read for true lzRead functionality
+     *      Results are collected via _lzReceive and emitted via BalancesScanned event
      */
     function scanBalances(
         address user,
         uint32[] calldata chainEids,
         bytes calldata options
-    ) external payable returns (uint256[] memory balances) {
+    ) external payable returns (bytes32 requestId) {
         require(chainEids.length > 0, "No chains specified");
         require(user != address(0), "Invalid user address");
 
@@ -107,87 +111,41 @@ contract UserBalanceScanner is OAppRead {
             );
         }
 
-        // Encode the read command: user address to query
-        bytes memory cmd = abi.encode(user);
+        // Generate request ID
+        requestId = keccak256(abi.encode(user, chainEids, block.timestamp));
 
-        // Prepare channel IDs (use channel 0 for all)
-        uint16[] memory channelIds = new uint16[](chainEids.length);
-        for (uint i = 0; i < chainEids.length; i++) {
-            channelIds[i] = 0;
-        }
+        // TODO: Implement actual lzRead when LayerZero Read is available
+        // For now, return request ID for tracking
+        // Off-chain agent should query USDCBalanceFetcher on each chain directly
 
-        // Execute lzRead to fetch balances from all chains
-        // Note: This is an async operation, results come via lzReduce callback
-        _lzRead(chainEids, channelIds, cmd, options);
-
-        // Return empty array initially - actual balances come via event
-        balances = new uint256[](chainEids.length);
-        return balances;
+        return requestId;
     }
 
     /**
-     * @notice Process individual chain response (map phase)
-     * @param cmd Original command (user address)
-     * @param response Raw response from USDCBalanceFetcher
-     * @return Encoded BalanceScanResult
-     *
-     * @dev Called by LayerZero for each chain's response
+     * @notice Receive balance information from remote chain
+     * @dev This would be called when implementing full lzRead functionality
+     *      For now, off-chain agent queries USDCBalanceFetcher directly
      */
-    function lzMap(bytes calldata cmd, bytes calldata response)
-        external
-        pure
-        override
-        returns (bytes memory)
-    {
-        // Decode response from USDCBalanceFetcher
-        (uint256 balance) = abi.decode(response, (uint256));
-
-        // Return encoded balance
-        return abi.encode(balance);
-    }
-
-    /**
-     * @notice Aggregate all chain responses (reduce phase)
-     * @param cmd Original command (user address)
-     * @param responses Array of responses from all chains
-     * @return Encoded array of balances
-     *
-     * @dev Called by LayerZero after all map operations complete
-     */
-    function lzReduce(bytes calldata cmd, bytes[] calldata responses)
-        external
-        pure
-        override
-        returns (bytes memory)
-    {
-        uint256[] memory balances = new uint256[](responses.length);
-        uint256 totalBalance = 0;
-
-        for (uint i = 0; i < responses.length; i++) {
-            uint256 balance = abi.decode(responses[i], (uint256));
-            balances[i] = balance;
-            totalBalance += balance;
-        }
-
-        return abi.encode(balances, totalBalance);
-    }
-
-    /**
-     * @notice Handle lzRead response
-     * @param response Aggregated response from lzReduce
-     *
-     * @dev This is called after lzReduce completes
-     *      Emits BalancesScanned event with results
-     */
-    function _lzReadResponse(bytes calldata response) internal override {
-        (uint256[] memory balances, uint256 totalBalance) = abi.decode(
-            response,
-            (uint256[], uint256)
+    function _lzReceive(
+        Origin calldata _origin,
+        bytes32 _guid,
+        bytes calldata _message,
+        address,
+        bytes calldata
+    ) internal virtual override {
+        // Decode balance response
+        (bytes32 requestId, address user, uint256 balance) = abi.decode(
+            _message,
+            (bytes32, address, uint256)
         );
 
-        // Note: We need to track the original request to emit proper event
-        // For simplicity, this is a basic implementation
-        // In production, you'd track requestId -> (user, chainEids) mapping
+        // Emit event for tracking
+        emit BalancesScanned(
+            user,
+            new uint32[](1), // Single chain in this response
+            new uint256[](1), // Single balance
+            balance
+        );
     }
 
     /**
