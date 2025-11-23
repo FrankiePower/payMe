@@ -1,0 +1,100 @@
+Warning: Found unknown `optimize` config for profile `default` defined in foundry.toml.
+Warning: Found unknown `solc-version` config for profile `default` defined in foundry.toml.
+No files changed, compilation skipped
+Script ran successfully.
+
+== Logs ==
+  === Test Configuration ===
+  Payer (Deployer): 0x5C8A5483bCDB51F858a9cF4a647dF6D34fdDf81c
+  Merchant (Recipient): 0xF03f39c6a0ea7164175dDeaa33060712C69977a8
+  Payment Amount: 1000000 USDC (6 decimals)
+  Destination EID: 40245
+  
+  Contracts:
+    Initiator: 0xDdE4F8eA94257691Ce3A855febF07D54312F4838
+    Aggregator: 0xd5B1C83a67FddE10846920462a04F8f67552F8ad
+    USDC: 0x036CbD53842c5426634e7929541eC2318f3dCF7e
+  
+  ====================================
+    PayMe - Payment Flow Test
+  ====================================
+  
+  === Checking Balances ===
+  Deployer USDC Balance: 8000000
+  Deployer ETH Balance: 199472919164840491
+  Balance checks passed!
+  
+  === Checking Approvals ===
+  Current USDC allowance: 0
+  Approval needed: YES
+  
+  === Checking Contract Configuration ===
+  Setting OFT bridge...
+  OFT bridge set successfully!
+  Registering aggregator...
+  Aggregator registered successfully!
+  
+  === Approving USDC ===
+  Approving 1000000 USDC to Initiator
+  USDC approved successfully!
+  
+  === Estimating LayerZero Fees ===
+  Estimated LayerZero fee: 1000000000000000
+  
+  === Initiating Payment ===
+  Payment Amount: 1000000 USDC
+  Merchant: 0xF03f39c6a0ea7164175dDeaa33060712C69977a8
+  LayerZero Fee: 1000000000000000 wei
+  Request ID: 0x00be742ef084bea0bfef6ca1f609a28e4595ff357f9591741ace778ab4df6c2f
+  
+  === Creating Aggregation Request ===
+  Aggregation request created: 0xa255997defa95a2fdc21d5c30efcffbe4174c337510ae64187c297e92e8f5892
+  
+  Payment initiated successfully!
+  Transfer ID: 0x245d409934f0624c42bcbec7b838c3f6a73732d414cda3b842892ea2227a6f2d
+  USDC spent: 1000000
+  
+  ====================================
+    Test Complete!
+  ====================================
+  
+  Transaction sent successfully!
+  
+  === Next Steps ===
+  1. Wait 10-30 seconds for LayerZero to process the message
+  2. Check LayerZero Scan for transaction status:
+     https://testnet.layerzeroscan.com/
+  3. Verify USDC was transferred to merchant
+  4. Check aggregator contract for payment records
+  
+  === Verification Commands ===
+  Check merchant USDC balance:
+    cast call $USDC_BASE_SEPOLIA "balanceOf(address)" 0xF03f39c6a0ea7164175dDeaa33060712C69977a8
+  
+  Check aggregator events:
+    cast logs --address $INSTANT_AGGREGATOR_BASE
+  
+
+## Setting up 1 EVM.
+
+==========================
+
+Chain 84532
+
+Estimated gas price: 0.075146242 gwei
+
+Estimated total gas used for script: 1191939
+
+Estimated amount required: 0.000089569736543238 ETH
+
+==========================
+
+
+==========================
+
+ONCHAIN EXECUTION COMPLETE & SUCCESSFUL.
+
+Transactions saved to: /Users/user/SuperFranky/payMe/my-lz-oapp/broadcast/TestPaymentFlow.s.sol/84532/run-latest.json
+
+Sensitive values saved to: /Users/user/SuperFranky/payMe/my-lz-oapp/cache/foundry/TestPaymentFlow.s.sol/84532/run-latest.json
+

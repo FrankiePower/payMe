@@ -1,0 +1,40 @@
+
+    ╭─────────────────────────────────────────╮
+    │       ▓▓▓ LayerZero DevTools ▓▓▓        │
+    │  ═══════════════════════════════════    │
+    │          /*\                            │
+    │         /* *\     BUILD ANYTHING        │
+    │         ('v')                           │
+    │        //-=-\\    ▶ OMNICHAIN           │
+    │        (\_=_/)                          │
+    │         ^^ ^^                           │
+    │  ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓  │
+    ╰─────────────────────────────────────────╯
+
+[32minfo[39m:    Compiling your hardhat project
+Compiled 29 Solidity files successfully (evm target: paris).
+[?25l[?25l[2K[1G[36m?[39m [1mWhich networks would you like to deploy?[22m [90m›[39m [90m[39m 
+Instructions:
+    ↑/↓: Highlight option
+    ←/→/[space]: Toggle selection
+    [a,b,c]/delete: Filter choices
+    enter/return: Complete answer
+ 
+Filtered results for: [90mEnter something to filter[39m
+
+[32m◉[39m  [36m[4mbase-sepolia[39m[24m
+◯  sepolia
+◯  [9m[90mhardhat[29m[39m
+◯  [9m[90mlocalhost[29m[39m[2K[1G[36m?[39m [1mWhich networks would you like to deploy?[22m [90m›[39m [90m[39m 
+Instructions:
+    ↑/↓: Highlight option
+    ←/→/[space]: Toggle selection
+    [a,b,c]/delete: Filter choices
+    enter/return: Complete answer
+ 
+Filtered results for: [90mEnter something to filter[39m
+
+[32m◉[39m  [36m[4mbase-sepolia[39m[24m
+◯  sepolia
+◯  [9m[90mhardhat[29m[39m
+◯  [9m[90mlocalhost[29m[39m

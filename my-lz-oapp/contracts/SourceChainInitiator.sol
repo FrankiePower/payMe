@@ -7,22 +7,45 @@ import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 
 /**
+ * @notice Interface for InstantAggregator
+ */
+interface IInstantAggregator {
+    function recordDirectPayment(bytes32 requestId, uint256 amount) external;
+}
+
+/**
+ * @notice CctpBridger interface
+ */
+interface ICctpBridger {
+    function bridgeUSDCV2(
+        uint256 amount,
+        uint32 destDomain,
+        address destMintRecipient,
+        address destCaller,
+        uint256 maxFee,
+        uint32 minFinalityThreshold,
+        bytes calldata hookData
+    ) external returns (bytes32 messageHash);
+}
+
+/**
  * @title SourceChainInitiator
- * @notice Initiates USDC transfers from source chain to PaymentAggregator on destination chain
- * @dev Deployed on each source chain (Arbitrum, Optimism, Base, etc.)
- *      Works with PaymentAggregator on destination chain to aggregate payments
+ * @notice Initiates USDC transfers from source chain to InstantAggregator on destination chain
+ * @dev Uses Circle CCTP to burn USDC and mint to aggregator (replacing OFT Adapter)
+ *
+ * ARCHITECTURE:
+ * - User sends USDC from any chain (Arbitrum, Optimism, etc.)
+ * - Contract burns USDC via Circle CCTP
+ * - Circle mints USDC to InstantAggregator on destination chain
+ * - InstantAggregator receives USDC + hookData for aggregation
  *
  * Flow:
  * 1. User approves USDC to this contract
  * 2. User calls sendToAggregator() with request details
- * 3. Contract locks USDC and sends LayerZero message to destination
- * 4. PaymentAggregator receives and tracks the payment
- *
- * Key Features:
- * - Locks user's USDC before sending
- * - Sends LayerZero message with request ID
- * - Tracks pending transfers
- * - Handles acknowledgments from destination
+ * 3. Contract burns USDC via CCTP with hookData containing requestId
+ * 4. Circle mints USDC to InstantAggregator on destination
+ * 5. InstantAggregator's handleReceiveMessage() is called with hookData
+ * 6. Aggregator tracks the payment and settles when threshold met
  */
 contract SourceChainInitiator is OApp {
     using SafeERC20 for IERC20;
@@ -30,11 +53,14 @@ contract SourceChainInitiator is OApp {
     /// @notice USDC token on this chain
     IERC20 public immutable usdcToken;
 
-    /// @notice OFT bridge for USDC transfers
-    address public oftBridge;
+    /// @notice CctpBridger contract
+    ICctpBridger public immutable cctpBridger;
 
-    /// @notice PaymentAggregator address on destination chain (as bytes32)
-    mapping(uint32 => bytes32) public aggregatorByChain;
+    /// @notice InstantAggregator address on destination chain (as address)
+    mapping(uint32 => address) public aggregatorByEid;
+
+    /// @notice CCTP domain ID by LayerZero EID
+    mapping(uint32 => uint32) public cctpDomainByEid;
 
     /// @notice Pending transfer tracking
     struct PendingTransfer {
@@ -42,16 +68,17 @@ contract SourceChainInitiator is OApp {
         address user;
         uint256 amount;
         uint32 destinationChain;
+        bytes32 cctpMessageHash;
         uint256 timestamp;
         bool sent;
-        bool acknowledged;
     }
 
     /// @notice Mapping of transfer ID to pending transfer
     mapping(bytes32 => PendingTransfer) public pendingTransfers;
 
     /// @notice Events
-    event AggregatorRegistered(uint32 indexed chainEid, bytes32 aggregator);
+    event AggregatorRegistered(uint32 indexed chainEid, address aggregator);
+    event CCTPDomainRegistered(uint32 indexed chainEid, uint32 cctpDomain);
 
     event TransferInitiated(
         bytes32 indexed transferId,
@@ -61,59 +88,64 @@ contract SourceChainInitiator is OApp {
         uint32 destinationChain
     );
 
-    event TransferSent(
+    event CCTPBurnInitiated(
         bytes32 indexed transferId,
-        bytes32 indexed requestId,
-        uint256 amount,
-        bytes32 guid
-    );
-
-    event TransferAcknowledged(
-        bytes32 indexed transferId,
-        bytes32 indexed requestId
+        bytes32 indexed cctpMessageHash,
+        uint256 amount
     );
 
     /**
      * @notice Constructor
-     * @param _endpoint LayerZero endpoint address
+     * @param _endpoint LayerZero endpoint address (for future cross-chain messages if needed)
      * @param _usdcToken USDC token address on this chain
+     * @param _cctpBridger CctpBridger contract address
      * @param _owner Contract owner
      */
     constructor(
         address _endpoint,
         address _usdcToken,
+        address _cctpBridger,
         address _owner
     ) OApp(_endpoint, _owner) Ownable(_owner) {
         require(_usdcToken != address(0), "Invalid USDC address");
+        require(_cctpBridger != address(0), "Invalid CctpBridger");
         usdcToken = IERC20(_usdcToken);
+        cctpBridger = ICctpBridger(_cctpBridger);
     }
 
     /**
-     * @notice Set OFT bridge address
-     * @param _oftBridge OFT bridge address
+     * @notice Register InstantAggregator address for a destination chain
+     * @param chainEid Destination chain LayerZero endpoint ID
+     * @param aggregator InstantAggregator address on that chain
      */
-    function setOFTBridge(address _oftBridge) external onlyOwner {
-        require(_oftBridge != address(0), "Invalid OFT bridge");
-        oftBridge = _oftBridge;
-    }
-
-    /**
-     * @notice Register PaymentAggregator address for a destination chain
-     * @param chainEid Destination chain endpoint ID
-     * @param aggregator PaymentAggregator address on that chain (as bytes32)
-     */
-    function registerAggregator(uint32 chainEid, bytes32 aggregator) external onlyOwner {
-        require(aggregator != bytes32(0), "Invalid aggregator");
-        aggregatorByChain[chainEid] = aggregator;
+    function registerAggregator(uint32 chainEid, address aggregator) external onlyOwner {
+        require(aggregator != address(0), "Invalid aggregator");
+        aggregatorByEid[chainEid] = aggregator;
         emit AggregatorRegistered(chainEid, aggregator);
     }
 
     /**
-     * @notice Send USDC to PaymentAggregator on destination chain
+     * @notice Register CCTP domain for a LayerZero endpoint ID
+     * @param chainEid LayerZero endpoint ID
+     * @param cctpDomain Circle CCTP domain ID
+     *
+     * Common mappings (Testnet):
+     * - Ethereum Sepolia: EID 40161, Domain 0
+     * - Arbitrum Sepolia: EID 40231, Domain 3
+     * - Base Sepolia: EID 40245, Domain 6
+     * - Optimism Sepolia: EID 40232, Domain 2
+     */
+    function registerCCTPDomain(uint32 chainEid, uint32 cctpDomain) external onlyOwner {
+        cctpDomainByEid[chainEid] = cctpDomain;
+        emit CCTPDomainRegistered(chainEid, cctpDomain);
+    }
+
+    /**
+     * @notice Send USDC to InstantAggregator on destination chain via CCTP
      * @param requestId Aggregation request ID
      * @param amount USDC amount to send
-     * @param destinationChain Destination chain endpoint ID
-     * @param options LayerZero execution options
+     * @param destinationEid Destination chain LayerZero endpoint ID
+     * @param useFastMode Use CCTP Fast mode (1-2 min, ~$1 fee) vs standard (10-20 min, free)
      * @return transferId Unique transfer identifier
      *
      * @dev User must approve USDC to this contract before calling
@@ -121,11 +153,14 @@ contract SourceChainInitiator is OApp {
     function sendToAggregator(
         bytes32 requestId,
         uint256 amount,
-        uint32 destinationChain,
-        bytes calldata options
-    ) external payable returns (bytes32 transferId) {
+        uint32 destinationEid,
+        bool useFastMode
+    ) external returns (bytes32 transferId) {
         require(amount > 0, "Invalid amount");
-        require(aggregatorByChain[destinationChain] != bytes32(0), "Aggregator not registered");
+        require(aggregatorByEid[destinationEid] != address(0), "Aggregator not registered");
+
+        uint32 destDomain = cctpDomainByEid[destinationEid];
+        require(destDomain != 0 || destinationEid == 40161, "CCTP domain not registered");
 
         // Generate transfer ID
         transferId = keccak256(
@@ -133,91 +168,117 @@ contract SourceChainInitiator is OApp {
                 requestId,
                 msg.sender,
                 amount,
-                destinationChain,
+                destinationEid,
                 block.timestamp
             )
         );
 
         require(!pendingTransfers[transferId].sent, "Transfer already sent");
 
-        // Lock user's USDC
+        // Transfer USDC from user to this contract
         usdcToken.safeTransferFrom(msg.sender, address(this), amount);
 
-        // Create pending transfer record
-        pendingTransfers[transferId] = PendingTransfer({
-            requestId: requestId,
-            user: msg.sender,
-            amount: amount,
-            destinationChain: destinationChain,
-            timestamp: block.timestamp,
-            sent: false,
-            acknowledged: false
-        });
+        emit TransferInitiated(transferId, requestId, msg.sender, amount, destinationEid);
 
-        emit TransferInitiated(transferId, requestId, msg.sender, amount, destinationChain);
+        // Check if same-chain or cross-chain
+        uint32 currentEid = uint32(endpoint.eid());
 
-        // Send LayerZero message with USDC via OFT
-        _sendViaOFT(transferId, requestId, amount, destinationChain, options);
+        if (destinationEid == currentEid) {
+            // Same chain - direct transfer (no CCTP needed)
+            _sendDirect(transferId, requestId, amount, destinationEid);
+        } else {
+            // Cross chain - use CCTP
+            _sendViaCCTP(transferId, requestId, amount, destinationEid, useFastMode);
+        }
 
         return transferId;
     }
 
     /**
-     * @notice Send USDC via OFT bridge
+     * @notice Send USDC directly to aggregator (same chain)
+     * @dev No CCTP needed - just transfer USDC and call aggregator
      */
-    function _sendViaOFT(
+    function _sendDirect(
         bytes32 transferId,
         bytes32 requestId,
         uint256 amount,
-        uint32 destinationChain,
-        bytes calldata options
+        uint32 destinationEid
     ) internal {
-        // Prepare message for PaymentAggregator
-        bytes memory message = abi.encode(requestId, amount, pendingTransfers[transferId].user);
+        address aggregator = aggregatorByEid[destinationEid];
+        require(aggregator != address(0), "Invalid aggregator");
 
-        // Approve USDC to OFT bridge
-        usdcToken.safeIncreaseAllowance(oftBridge, amount);
+        // Transfer USDC to aggregator
+        usdcToken.safeTransfer(aggregator, amount);
 
-        // Send via LayerZero
-        MessagingReceipt memory receipt = _lzSend(
-            destinationChain,
-            message,
-            options,
-            MessagingFee(msg.value, 0),
-            payable(msg.sender)
-        );
+        // Call aggregator to record the payment
+        IInstantAggregator(aggregator).recordDirectPayment(requestId, amount);
 
         // Mark as sent
-        pendingTransfers[transferId].sent = true;
-
-        emit TransferSent(transferId, requestId, amount, receipt.guid);
+        pendingTransfers[transferId] = PendingTransfer({
+            requestId: requestId,
+            user: msg.sender,
+            amount: amount,
+            destinationChain: destinationEid,
+            cctpMessageHash: bytes32(0),
+            timestamp: block.timestamp,
+            sent: true
+        });
     }
 
     /**
-     * @notice Receive acknowledgment from destination chain
-     * @dev Called by LayerZero when PaymentAggregator acknowledges receipt
+     * @notice Send USDC via CCTP (cross-chain)
+     * @dev Burns USDC on source chain, mints to InstantAggregator on destination
      */
-    function _lzReceive(
-        Origin calldata _origin,
-        bytes32 _guid,
-        bytes calldata _message,
-        address, // executor
-        bytes calldata // extraData
-    ) internal override {
-        (bytes32 transferId, bool success) = abi.decode(_message, (bytes32, bool));
+    function _sendViaCCTP(
+        bytes32 transferId,
+        bytes32 requestId,
+        uint256 amount,
+        uint32 destinationEid,
+        bool useFastMode
+    ) internal {
+        uint32 destDomain = cctpDomainByEid[destinationEid];
+        address aggregator = aggregatorByEid[destinationEid];
 
-        PendingTransfer storage transfer = pendingTransfers[transferId];
-        require(transfer.sent, "Transfer not found");
+        // Approve USDC to CctpBridger
+        usdcToken.safeIncreaseAllowance(address(cctpBridger), amount);
 
-        transfer.acknowledged = true;
+        // Prepare hookData: requestId for aggregator to track this payment
+        bytes memory hookData = abi.encode(requestId);
 
-        emit TransferAcknowledged(transferId, transfer.requestId);
+        // Configure CCTP parameters
+        uint256 maxFee = useFastMode ? 1e6 : 0; // 1 USDC max fee for fast mode
+        uint32 minFinalityThreshold = useFastMode ? 1000 : 2000; // 1000=fast, 2000=standard
 
-        // If acknowledgment indicates failure, handle refund
-        if (!success) {
-            // Refund USDC to user
-            usdcToken.safeTransfer(transfer.user, transfer.amount);
-        }
+        // Bridge USDC via CctpBridger
+        bytes32 cctpMessageHash = cctpBridger.bridgeUSDCV2(
+            amount,
+            destDomain,
+            aggregator,        // Mint to aggregator
+            aggregator,        // Aggregator can receive the hook
+            maxFee,
+            minFinalityThreshold,
+            hookData           // Pass requestId to aggregator
+        );
+
+        emit CCTPBurnInitiated(transferId, cctpMessageHash, amount);
+
+        // Store pending transfer
+        pendingTransfers[transferId] = PendingTransfer({
+            requestId: requestId,
+            user: msg.sender,
+            amount: amount,
+            destinationChain: destinationEid,
+            cctpMessageHash: cctpMessageHash,
+            timestamp: block.timestamp,
+            sent: true
+        });
+    }
+
+    /**
+     * @notice Convert address to bytes32
+     */
+    function _addressToBytes32(address addr) internal pure returns (bytes32) {
+        return bytes32(uint256(uint160(addr)));
     }
 
     /**
@@ -239,7 +300,21 @@ contract SourceChainInitiator is OApp {
     }
 
     /**
-     * @notice Receive ETH for LayerZero fees
+     * @notice Receive ETH for LayerZero fees (future use)
      */
     receive() external payable {}
+
+    /**
+     * @notice Required by OApp - handle incoming LayerZero messages
+     * @dev Not used currently, but required by OApp interface
+     */
+    function _lzReceive(
+        Origin calldata,
+        bytes32,
+        bytes calldata,
+        address,
+        bytes calldata
+    ) internal override {
+        // Not used - keeping for future acknowledgments if needed
+    }
 }

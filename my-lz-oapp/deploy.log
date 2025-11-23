@@ -1,0 +1,5 @@
+error: unexpected argument '' found
+
+Usage: forge create [OPTIONS] <CONTRACT>
+
+For more information, try '--help'.

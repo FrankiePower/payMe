@@ -2,42 +2,47 @@
 pragma solidity ^0.8.22;
 
 import { OApp, Origin, MessagingFee } from "@layerzerolabs/oapp-evm/contracts/oapp/OApp.sol";
-import { IOAppComposer } from "@layerzerolabs/oapp-evm/contracts/oapp/interfaces/IOAppComposer.sol";
-import { OFTComposeMsgCodec } from "@layerzerolabs/oft-evm/contracts/libs/OFTComposeMsgCodec.sol";
 import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
 import { IERC20 } from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import { SafeERC20 } from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import { ISwapRouter } from "./interfaces/ISwapRouter.sol";
 
 /**
+ * @notice Circle CCTP MessageTransmitter interface for receiving hooks
+ */
+interface IMessageTransmitter {
+    function receiveMessage(bytes calldata message, bytes calldata attestation) external returns (bool);
+}
+
+/**
  * @title InstantAggregator
- * @notice FAST payment aggregation using OFTAdapter for instant settlement
- * @dev Key innovation: Transfer USDC immediately when ALL locks confirmed via OFTAdapter
+ * @notice FAST payment aggregation using Circle CCTP for instant settlement
+ * @dev Key innovation: Transfer USDC immediately when ALL payments confirmed via CCTP
  *
  * Speed comparison:
  * - Traditional aggregation: 10-15 minutes (wait for all USDC to arrive)
- * - Instant aggregation: 30 seconds (transfer USDC as soon as all locks confirmed)
+ * - CCTP aggregation: 1-2 minutes (Circle mints USDC directly to this contract)
  *
  * Flow:
  * 1. Scan user balances across chains to determine exact amounts
- * 2. Agent locks USDC on all source chains in PARALLEL
- * 3. Each source chain sends "LOCKED" message to this contract
- * 4. When FULL amount received (100%), INSTANTLY transfer USDC to merchant
- * 5. Merchant receives actual USDC in ~30 seconds (immediately usable)
+ * 2. User sends USDC from all source chains via SourceChainInitiator
+ * 3. SourceChainInitiator burns USDC via CCTP with hookData containing requestId
+ * 4. Circle mints USDC to this contract with handleReceiveMessage hook
+ * 5. When FULL amount received (100%), INSTANTLY transfer USDC to merchant
+ * 6. Merchant receives native USDC in ~2 minutes
  *
- * With OFTAdapter:
- * - USDC locked on source chains gets unlocked from adapter on destination
- * - Merchant receives native USDC directly (no intermediate OFT token)
- * - No background resolution needed - adapter handles everything
+ * With CCTP:
+ * - USDC burned on source chains, minted natively on destination
+ * - Merchant receives native USDC (not wrapped)
+ * - No OFT Adapter issues - Circle handles everything
  *
  * No Partial Payments:
  * - Must receive exact target amount (100%)
  * - If deadline expires without full amount, request fails
  * - All-or-nothing settlement
  */
-contract InstantAggregator is OApp, IOAppComposer {
+contract InstantAggregator is OApp {
     using SafeERC20 for IERC20;
-    using OFTComposeMsgCodec for bytes;
 
     /// @notice Settlement status
     enum SettlementStatus {
@@ -63,10 +68,9 @@ contract InstantAggregator is OApp, IOAppComposer {
         uint256 usdcSettledAmount;     // USDC transferred to merchant
     }
 
-    /// @notice USDC OFT Adapter for instant cross-chain settlement
-    /// @dev This adapter wraps native USDC - when user sends USDC cross-chain,
-    ///      it gets locked in source adapter and unlocked from destination adapter
-    address public immutable usdcOFTAdapter;
+    /// @notice Circle CCTP MessageTransmitter for receiving USDC with hooks
+    /// @dev Circle calls handleReceiveMessage on this contract after minting USDC
+    address public messageTransmitter;
 
     /// @notice Uniswap V3 Swap Router for token swaps
     /// @dev Used to swap non-USDC tokens (ARB, ETH, etc.) to USDC on-chain
@@ -115,17 +119,17 @@ contract InstantAggregator is OApp, IOAppComposer {
 
     /**
      * @notice Constructor
-     * @param _endpoint LayerZero endpoint
-     * @param _usdcOFTAdapter USDC OFT Adapter address (wraps native USDC)
+     * @param _endpoint LayerZero endpoint (for future cross-chain messages if needed)
+     * @param _messageTransmitter Circle CCTP MessageTransmitter address
      * @param _owner Contract owner
      */
     constructor(
         address _endpoint,
-        address _usdcOFTAdapter,
+        address _messageTransmitter,
         address _owner
     ) OApp(_endpoint, _owner) Ownable(_owner) {
-        require(_usdcOFTAdapter != address(0), "Invalid USDC OFT Adapter");
-        usdcOFTAdapter = _usdcOFTAdapter;
+        require(_messageTransmitter != address(0), "Invalid MessageTransmitter");
+        messageTransmitter = _messageTransmitter;
     }
 
     /**
@@ -190,55 +194,32 @@ contract InstantAggregator is OApp, IOAppComposer {
     }
 
     /**
-     * @notice Receive lock confirmation from source chain
-     * @dev CRITICAL: This is where instant settlement happens!
+     * @notice Handle LayerZero messages (optional for future use)
+     * @dev Currently not used since CCTP handles all cross-chain transfers
+     *      Kept for potential future acknowledgments or status updates
      */
     function _lzReceive(
-        Origin calldata _origin,
-        bytes32 _guid,
-        bytes calldata _message,
+        Origin calldata,
+        bytes32,
+        bytes calldata,
         address,
         bytes calldata
     ) internal override {
-        (bytes32 requestId, uint256 lockedAmount, uint256 startTime) = abi.decode(
-            _message,
-            (bytes32, uint256, uint256)
-        );
-
-        InstantAggregationRequest storage request = requests[requestId];
-        require(request.exists, "Request not found");
-        require(request.status == SettlementStatus.PENDING, "Invalid status");
-        require(block.timestamp <= request.deadline, "Expired");
-
-        // Update locked amount
-        lockedPerChain[requestId][_origin.srcEid] += lockedAmount;
-        request.totalLocked += lockedAmount;
-
-        emit LockConfirmed(
-            requestId,
-            _origin.srcEid,
-            lockedAmount,
-            request.totalLocked
-        );
-
-        // Check if FULL amount received for INSTANT SETTLEMENT
-        if (request.totalLocked == request.targetAmount && request.usdcSettledAmount == 0) {
-            // INSTANT SETTLEMENT: Transfer USDC to merchant NOW
-            _instantSettle(requestId, startTime);
-        }
+        // Not currently used - CCTP handles all cross-chain transfers
+        // Could be used for acknowledgments or status updates in the future
     }
 
     /**
-     * @notice INSTANT SETTLEMENT: Transfer USDC from OFT Adapter to merchant
-     * @dev This happens as soon as threshold is met (30 seconds vs 15 minutes)
-     * @dev The USDC is already unlocked in the OFT Adapter from source chain locks
+     * @notice INSTANT SETTLEMENT: Transfer USDC to merchant
+     * @dev This happens as soon as threshold is met (1-2 minutes with CCTP Fast)
+     * @dev The USDC was minted directly to this contract by Circle CCTP
      */
     function _instantSettle(bytes32 requestId, uint256 startTime) internal {
         InstantAggregationRequest storage request = requests[requestId];
 
-        // Transfer USDC from adapter to merchant (INSTANT PAYMENT)
-        // Note: USDC was already unlocked from source chains into the adapter
-        IERC20(usdcOFTAdapter).safeTransfer(request.merchant, request.totalLocked);
+        // Transfer USDC to merchant (INSTANT PAYMENT)
+        // Note: USDC was minted to this contract by Circle via CCTP
+        IERC20(usdcToken).safeTransfer(request.merchant, request.totalLocked);
 
         request.usdcSettledAmount = request.totalLocked;
         request.status = SettlementStatus.SETTLED;
@@ -284,56 +265,62 @@ contract InstantAggregator is OApp, IOAppComposer {
     }
 
     /**
-     * @notice Horizontal Composability: Handle composed messages with token swaps
-     * @dev Called by LayerZero endpoint when user sends non-USDC token with composeMsg
-     * @dev Gas is PRE-PAID by user in initial send (via lzComposeOptions)
+     * @notice Direct same-chain payment recording (no LayerZero needed)
+     * @dev Called by SourceChainInitiator when source and destination are the same chain
+     * @param requestId The aggregation request ID
+     * @param amount Amount of USDC received (already transferred to this contract)
+     */
+    function recordDirectPayment(bytes32 requestId, uint256 amount) external {
+        InstantAggregationRequest storage request = requests[requestId];
+        require(request.exists, "Request not found");
+        require(request.status == SettlementStatus.PENDING, "Invalid status");
+
+        // Add USDC to aggregation request
+        request.totalLocked += amount;
+
+        emit LockConfirmed(
+            requestId,
+            uint32(endpoint.eid()),
+            amount,
+            request.totalLocked
+        );
+
+        // Check if we can instant settle
+        if (request.totalLocked == request.targetAmount && request.usdcSettledAmount == 0) {
+            _instantSettle(requestId, block.timestamp);
+        }
+    }
+
+    /**
+     * @notice CCTP Hook: Handle USDC receipt from Circle with hookData
+     * @dev Called by Circle's MessageTransmitter after minting USDC to this contract
      *
      * Flow:
-     * 1. User sends ARB from Arbitrum with composeMsg containing requestId
-     * 2. OFTAdapter unlocks ARB to this contract
-     * 3. LayerZero calls lzCompose() with pre-paid gas
-     * 4. This function swaps ARB → USDC using Uniswap
-     * 5. USDC is added to aggregation request
-     *
-     * Gas Payment:
-     * - User pays for ALL gas upfront via quoteSend(sendParam, false)
-     * - Includes cross-chain delivery + lzCompose execution + swap gas
-     * - No need for contract to hold gas - user pre-funded everything
+     * 1. User burns USDC on source chain via SourceChainInitiator
+     * 2. SourceChainInitiator includes requestId in hookData
+     * 3. Circle mints USDC to this contract
+     * 4. Circle calls this function with hookData
+     * 5. We decode requestId and add USDC to aggregation
+     * 6. If threshold met, instantly settle to merchant
      */
-    function lzCompose(
-        address /* _oApp */,
-        bytes32 /* _guid */,
-        bytes calldata _message,
-        address /* _executor */,
-        bytes calldata /* _extraData */
-    ) external payable override {
-        // Only LayerZero endpoint can call this
-        require(msg.sender == address(endpoint), "Only endpoint");
+    function handleReceiveMessage(
+        uint32 /* sourceDomain */,
+        bytes32 /* sender */,
+        bytes calldata messageBody
+    ) external returns (bool) {
+        // Only Circle's MessageTransmitter can call this
+        require(msg.sender == messageTransmitter, "Only MessageTransmitter");
 
-        // Decode the OFT compose message
-        // Format: nonce (8 bytes) + srcEid (4 bytes) + amountLD (32 bytes) + composeMsg
-        bytes memory composeMsg = _message.composeMsg();
-
-        // Decode our custom compose message: (requestId, tokenIn, amountIn)
-        (bytes32 requestId, address tokenIn, uint256 amountIn) = abi.decode(
-            composeMsg,
-            (bytes32, address, uint256)
-        );
+        // Decode hookData to get requestId
+        bytes32 requestId = abi.decode(messageBody, (bytes32));
 
         InstantAggregationRequest storage request = requests[requestId];
         require(request.exists, "Request not found");
         require(request.status == SettlementStatus.PENDING, "Invalid status");
 
-        uint256 usdcAmount;
-
-        // If token is already USDC, no swap needed
-        if (tokenIn == usdcToken) {
-            usdcAmount = amountIn;
-        } else {
-            // Swap non-USDC token to USDC using DEX
-            // Gas for this swap is pre-paid by user in lzComposeOptions
-            usdcAmount = _swapToUSDC(requestId, tokenIn, amountIn);
-        }
+        // Get USDC balance (Circle just minted to this contract)
+        uint256 usdcAmount = IERC20(usdcToken).balanceOf(address(this));
+        require(usdcAmount > 0, "No USDC received");
 
         // Add USDC to aggregation request
         request.totalLocked += usdcAmount;
@@ -349,6 +336,8 @@ contract InstantAggregator is OApp, IOAppComposer {
         if (request.totalLocked == request.targetAmount && request.usdcSettledAmount == 0) {
             _instantSettle(requestId, block.timestamp);
         }
+
+        return true;
     }
 
     /**

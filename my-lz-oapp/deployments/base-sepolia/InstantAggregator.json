@@ -1,0 +1,1454 @@
+{
+  "address": "0x69C0eb2a68877b57c756976130099885dcf73d33",
+  "abi": [
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_endpoint",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_messageTransmitter",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_owner",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
+    {
+      "inputs": [],
+      "name": "InvalidDelegate",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "InvalidEndpointCall",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "LzTokenUnavailable",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint32",
+          "name": "eid",
+          "type": "uint32"
+        }
+      ],
+      "name": "NoPeer",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "msgValue",
+          "type": "uint256"
+        }
+      ],
+      "name": "NotEnoughNative",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "addr",
+          "type": "address"
+        }
+      ],
+      "name": "OnlyEndpoint",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint32",
+          "name": "eid",
+          "type": "uint32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "sender",
+          "type": "bytes32"
+        }
+      ],
+      "name": "OnlyPeer",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "owner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnableInvalidOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "account",
+          "type": "address"
+        }
+      ],
+      "name": "OwnableUnauthorizedAccount",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        }
+      ],
+      "name": "SafeERC20FailedOperation",
+      "type": "error"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "requestId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "merchant",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "targetAmount",
+          "type": "uint256"
+        }
+      ],
+      "name": "InstantAggregationInitiated",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "requestId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "merchant",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "usdcAmount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "timeElapsed",
+          "type": "uint256"
+        }
+      ],
+      "name": "InstantSettlement",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "requestId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "uint32",
+          "name": "sourceChain",
+          "type": "uint32"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "totalLocked",
+          "type": "uint256"
+        }
+      ],
+      "name": "LockConfirmed",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "previousOwner",
+          "type": "address"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "OwnershipTransferred",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": false,
+          "internalType": "uint32",
+          "name": "eid",
+          "type": "uint32"
+        },
+        {
+          "indexed": false,
+          "internalType": "bytes32",
+          "name": "peer",
+          "type": "bytes32"
+        }
+      ],
+      "name": "PeerSet",
+      "type": "event"
+    },
+    {
+      "anonymous": false,
+      "inputs": [
+        {
+          "indexed": true,
+          "internalType": "bytes32",
+          "name": "requestId",
+          "type": "bytes32"
+        },
+        {
+          "indexed": true,
+          "internalType": "address",
+          "name": "tokenIn",
+          "type": "address"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "amountIn",
+          "type": "uint256"
+        },
+        {
+          "indexed": false,
+          "internalType": "uint256",
+          "name": "usdcOut",
+          "type": "uint256"
+        }
+      ],
+      "name": "TokenSwapped",
+      "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint32",
+              "name": "srcEid",
+              "type": "uint32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "sender",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint64",
+              "name": "nonce",
+              "type": "uint64"
+            }
+          ],
+          "internalType": "struct Origin",
+          "name": "origin",
+          "type": "tuple"
+        }
+      ],
+      "name": "allowInitializePath",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "requestId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "canInstantSettle",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "to",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "emergencyWithdraw",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "endpoint",
+      "outputs": [
+        {
+          "internalType": "contract ILayerZeroEndpointV2",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint32",
+          "name": "",
+          "type": "uint32"
+        }
+      ],
+      "name": "expectedPerChain",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "requestId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint32",
+          "name": "chainEid",
+          "type": "uint32"
+        }
+      ],
+      "name": "getLockedAmount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "requestId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getRequest",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "bytes32",
+              "name": "requestId",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "address",
+              "name": "user",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "merchant",
+              "type": "address"
+            },
+            {
+              "internalType": "uint256",
+              "name": "targetAmount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "totalLocked",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint32",
+              "name": "destinationChain",
+              "type": "uint32"
+            },
+            {
+              "internalType": "uint32",
+              "name": "refundChain",
+              "type": "uint32"
+            },
+            {
+              "internalType": "uint256",
+              "name": "deadline",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "refundGasDeposit",
+              "type": "uint256"
+            },
+            {
+              "internalType": "enum InstantAggregator.SettlementStatus",
+              "name": "status",
+              "type": "uint8"
+            },
+            {
+              "internalType": "bool",
+              "name": "exists",
+              "type": "bool"
+            },
+            {
+              "internalType": "uint256",
+              "name": "usdcSettledAmount",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct InstantAggregator.InstantAggregationRequest",
+          "name": "",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint32",
+          "name": "",
+          "type": "uint32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes",
+          "name": "messageBody",
+          "type": "bytes"
+        }
+      ],
+      "name": "handleReceiveMessage",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "merchant",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "targetAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint32",
+          "name": "refundChain",
+          "type": "uint32"
+        },
+        {
+          "internalType": "uint32[]",
+          "name": "sourceChains",
+          "type": "uint32[]"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "expectedAmounts",
+          "type": "uint256[]"
+        }
+      ],
+      "name": "initiateInstantAggregation",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "requestId",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint32",
+              "name": "srcEid",
+              "type": "uint32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "sender",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint64",
+              "name": "nonce",
+              "type": "uint64"
+            }
+          ],
+          "internalType": "struct Origin",
+          "name": "",
+          "type": "tuple"
+        },
+        {
+          "internalType": "bytes",
+          "name": "",
+          "type": "bytes"
+        },
+        {
+          "internalType": "address",
+          "name": "_sender",
+          "type": "address"
+        }
+      ],
+      "name": "isComposeMsgSender",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint32",
+          "name": "",
+          "type": "uint32"
+        }
+      ],
+      "name": "lockedPerChain",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "components": [
+            {
+              "internalType": "uint32",
+              "name": "srcEid",
+              "type": "uint32"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "sender",
+              "type": "bytes32"
+            },
+            {
+              "internalType": "uint64",
+              "name": "nonce",
+              "type": "uint64"
+            }
+          ],
+          "internalType": "struct Origin",
+          "name": "_origin",
+          "type": "tuple"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "_guid",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "bytes",
+          "name": "_message",
+          "type": "bytes"
+        },
+        {
+          "internalType": "address",
+          "name": "_executor",
+          "type": "address"
+        },
+        {
+          "internalType": "bytes",
+          "name": "_extraData",
+          "type": "bytes"
+        }
+      ],
+      "name": "lzReceive",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "messageTransmitter",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint32",
+          "name": "",
+          "type": "uint32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "nextNonce",
+      "outputs": [
+        {
+          "internalType": "uint64",
+          "name": "nonce",
+          "type": "uint64"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "oAppVersion",
+      "outputs": [
+        {
+          "internalType": "uint64",
+          "name": "senderVersion",
+          "type": "uint64"
+        },
+        {
+          "internalType": "uint64",
+          "name": "receiverVersion",
+          "type": "uint64"
+        }
+      ],
+      "stateMutability": "pure",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "owner",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint32",
+          "name": "eid",
+          "type": "uint32"
+        }
+      ],
+      "name": "peers",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "peer",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "requestId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "recordDirectPayment",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "renounceOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "name": "requests",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "requestId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "address",
+          "name": "user",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "merchant",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "targetAmount",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "totalLocked",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint32",
+          "name": "destinationChain",
+          "type": "uint32"
+        },
+        {
+          "internalType": "uint32",
+          "name": "refundChain",
+          "type": "uint32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "deadline",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "refundGasDeposit",
+          "type": "uint256"
+        },
+        {
+          "internalType": "enum InstantAggregator.SettlementStatus",
+          "name": "status",
+          "type": "uint8"
+        },
+        {
+          "internalType": "bool",
+          "name": "exists",
+          "type": "bool"
+        },
+        {
+          "internalType": "uint256",
+          "name": "usdcSettledAmount",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_delegate",
+          "type": "address"
+        }
+      ],
+      "name": "setDelegate",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint32",
+          "name": "_eid",
+          "type": "uint32"
+        },
+        {
+          "internalType": "bytes32",
+          "name": "_peer",
+          "type": "bytes32"
+        }
+      ],
+      "name": "setPeer",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_swapRouter",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_usdcToken",
+          "type": "address"
+        }
+      ],
+      "name": "setSwapConfig",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "swapRouter",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "newOwner",
+          "type": "address"
+        }
+      ],
+      "name": "transferOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "usdcToken",
+      "outputs": [
+        {
+          "internalType": "address",
+          "name": "",
+          "type": "address"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "stateMutability": "payable",
+      "type": "receive"
+    }
+  ],
+  "transactionHash": "0x498eddc08781420c408429b34c8a5c6c64d0490dd808522f8ea206ed73e9b727",
+  "receipt": {
+    "to": null,
+    "from": "0x5C8A5483bCDB51F858a9cF4a647dF6D34fdDf81c",
+    "contractAddress": "0x69C0eb2a68877b57c756976130099885dcf73d33",
+    "transactionIndex": 16,
+    "gasUsed": "1835896",
+    "logsBloom": "0x00000000000000000000000000001000000000000000000000800000000000000000000000000000200000000000000008000002000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000020000000200000000000800000000000000400000000000000000400000000000020020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000020000000000000000400000000000000000000000000000000000000000000000000000000000020000000000000000400000000000000000000000000000000000000000000000000",
+    "blockHash": "0x3f11b202999fb8be79f8d6a72ec4d25675123478aace5809ec570e7349f9e1c3",
+    "transactionHash": "0x498eddc08781420c408429b34c8a5c6c64d0490dd808522f8ea206ed73e9b727",
+    "logs": [
+      {
+        "transactionIndex": 16,
+        "blockNumber": 34058287,
+        "transactionHash": "0x498eddc08781420c408429b34c8a5c6c64d0490dd808522f8ea206ed73e9b727",
+        "address": "0x69C0eb2a68877b57c756976130099885dcf73d33",
+        "topics": [
+          "0x8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e0",
+          "0x0000000000000000000000000000000000000000000000000000000000000000",
+          "0x0000000000000000000000005c8a5483bcdb51f858a9cf4a647df6d34fddf81c"
+        ],
+        "data": "0x",
+        "logIndex": 189,
+        "blockHash": "0x3f11b202999fb8be79f8d6a72ec4d25675123478aace5809ec570e7349f9e1c3"
+      },
+      {
+        "transactionIndex": 16,
+        "blockNumber": 34058287,
+        "transactionHash": "0x498eddc08781420c408429b34c8a5c6c64d0490dd808522f8ea206ed73e9b727",
+        "address": "0x6EDCE65403992e310A62460808c4b910D972f10f",
+        "topics": [
+          "0x6ee10e9ed4d6ce9742703a498707862f4b00f1396a87195eb93267b3d7983981"
+        ],
+        "data": "0x00000000000000000000000069c0eb2a68877b57c756976130099885dcf73d330000000000000000000000005c8a5483bcdb51f858a9cf4a647df6d34fddf81c",
+        "logIndex": 190,
+        "blockHash": "0x3f11b202999fb8be79f8d6a72ec4d25675123478aace5809ec570e7349f9e1c3"
+      }
+    ],
+    "blockNumber": 34058287,
+    "cumulativeGasUsed": "9600079",
+    "status": 1,
+    "byzantium": true
+  },
+  "args": [
+    "0x6EDCE65403992e310A62460808c4b910D972f10f",
+    "0x7865fAfC2db2093669d92c0F33AeEF291086BEFD",
+    "0x5C8A5483bCDB51F858a9cF4a647dF6D34fdDf81c"
+  ],
+  "numDeployments": 1,
+  "solcInputHash": "5ae45d0bd09e265b870044419c9f05ac",
+  "metadata": "{\"compiler\":{\"version\":\"0.8.22+commit.4fc1097e\"},\"language\":\"Solidity\",\"output\":{\"abi\":[{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_endpoint\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_messageTransmitter\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_owner\",\"type\":\"address\"}],\"stateMutability\":\"nonpayable\",\"type\":\"constructor\"},{\"inputs\":[],\"name\":\"InvalidDelegate\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"InvalidEndpointCall\",\"type\":\"error\"},{\"inputs\":[],\"name\":\"LzTokenUnavailable\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint32\",\"name\":\"eid\",\"type\":\"uint32\"}],\"name\":\"NoPeer\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint256\",\"name\":\"msgValue\",\"type\":\"uint256\"}],\"name\":\"NotEnoughNative\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"addr\",\"type\":\"address\"}],\"name\":\"OnlyEndpoint\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"uint32\",\"name\":\"eid\",\"type\":\"uint32\"},{\"internalType\":\"bytes32\",\"name\":\"sender\",\"type\":\"bytes32\"}],\"name\":\"OnlyPeer\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"owner\",\"type\":\"address\"}],\"name\":\"OwnableInvalidOwner\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"account\",\"type\":\"address\"}],\"name\":\"OwnableUnauthorizedAccount\",\"type\":\"error\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"}],\"name\":\"SafeERC20FailedOperation\",\"type\":\"error\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"requestId\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"merchant\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"targetAmount\",\"type\":\"uint256\"}],\"name\":\"InstantAggregationInitiated\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"requestId\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"merchant\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"usdcAmount\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"timeElapsed\",\"type\":\"uint256\"}],\"name\":\"InstantSettlement\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"requestId\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"uint32\",\"name\":\"sourceChain\",\"type\":\"uint32\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"totalLocked\",\"type\":\"uint256\"}],\"name\":\"LockConfirmed\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"address\",\"name\":\"previousOwner\",\"type\":\"address\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"OwnershipTransferred\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":false,\"internalType\":\"uint32\",\"name\":\"eid\",\"type\":\"uint32\"},{\"indexed\":false,\"internalType\":\"bytes32\",\"name\":\"peer\",\"type\":\"bytes32\"}],\"name\":\"PeerSet\",\"type\":\"event\"},{\"anonymous\":false,\"inputs\":[{\"indexed\":true,\"internalType\":\"bytes32\",\"name\":\"requestId\",\"type\":\"bytes32\"},{\"indexed\":true,\"internalType\":\"address\",\"name\":\"tokenIn\",\"type\":\"address\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"amountIn\",\"type\":\"uint256\"},{\"indexed\":false,\"internalType\":\"uint256\",\"name\":\"usdcOut\",\"type\":\"uint256\"}],\"name\":\"TokenSwapped\",\"type\":\"event\"},{\"inputs\":[{\"components\":[{\"internalType\":\"uint32\",\"name\":\"srcEid\",\"type\":\"uint32\"},{\"internalType\":\"bytes32\",\"name\":\"sender\",\"type\":\"bytes32\"},{\"internalType\":\"uint64\",\"name\":\"nonce\",\"type\":\"uint64\"}],\"internalType\":\"struct Origin\",\"name\":\"origin\",\"type\":\"tuple\"}],\"name\":\"allowInitializePath\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"requestId\",\"type\":\"bytes32\"}],\"name\":\"canInstantSettle\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"token\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"to\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"emergencyWithdraw\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"endpoint\",\"outputs\":[{\"internalType\":\"contract ILayerZeroEndpointV2\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"},{\"internalType\":\"uint32\",\"name\":\"\",\"type\":\"uint32\"}],\"name\":\"expectedPerChain\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"requestId\",\"type\":\"bytes32\"},{\"internalType\":\"uint32\",\"name\":\"chainEid\",\"type\":\"uint32\"}],\"name\":\"getLockedAmount\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"requestId\",\"type\":\"bytes32\"}],\"name\":\"getRequest\",\"outputs\":[{\"components\":[{\"internalType\":\"bytes32\",\"name\":\"requestId\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"merchant\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"targetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"totalLocked\",\"type\":\"uint256\"},{\"internalType\":\"uint32\",\"name\":\"destinationChain\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"refundChain\",\"type\":\"uint32\"},{\"internalType\":\"uint256\",\"name\":\"deadline\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"refundGasDeposit\",\"type\":\"uint256\"},{\"internalType\":\"enum InstantAggregator.SettlementStatus\",\"name\":\"status\",\"type\":\"uint8\"},{\"internalType\":\"bool\",\"name\":\"exists\",\"type\":\"bool\"},{\"internalType\":\"uint256\",\"name\":\"usdcSettledAmount\",\"type\":\"uint256\"}],\"internalType\":\"struct InstantAggregator.InstantAggregationRequest\",\"name\":\"\",\"type\":\"tuple\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint32\",\"name\":\"\",\"type\":\"uint32\"},{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"},{\"internalType\":\"bytes\",\"name\":\"messageBody\",\"type\":\"bytes\"}],\"name\":\"handleReceiveMessage\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"merchant\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"targetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint32\",\"name\":\"refundChain\",\"type\":\"uint32\"},{\"internalType\":\"uint32[]\",\"name\":\"sourceChains\",\"type\":\"uint32[]\"},{\"internalType\":\"uint256[]\",\"name\":\"expectedAmounts\",\"type\":\"uint256[]\"}],\"name\":\"initiateInstantAggregation\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"requestId\",\"type\":\"bytes32\"}],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"uint32\",\"name\":\"srcEid\",\"type\":\"uint32\"},{\"internalType\":\"bytes32\",\"name\":\"sender\",\"type\":\"bytes32\"},{\"internalType\":\"uint64\",\"name\":\"nonce\",\"type\":\"uint64\"}],\"internalType\":\"struct Origin\",\"name\":\"\",\"type\":\"tuple\"},{\"internalType\":\"bytes\",\"name\":\"\",\"type\":\"bytes\"},{\"internalType\":\"address\",\"name\":\"_sender\",\"type\":\"address\"}],\"name\":\"isComposeMsgSender\",\"outputs\":[{\"internalType\":\"bool\",\"name\":\"\",\"type\":\"bool\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"},{\"internalType\":\"uint32\",\"name\":\"\",\"type\":\"uint32\"}],\"name\":\"lockedPerChain\",\"outputs\":[{\"internalType\":\"uint256\",\"name\":\"\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"components\":[{\"internalType\":\"uint32\",\"name\":\"srcEid\",\"type\":\"uint32\"},{\"internalType\":\"bytes32\",\"name\":\"sender\",\"type\":\"bytes32\"},{\"internalType\":\"uint64\",\"name\":\"nonce\",\"type\":\"uint64\"}],\"internalType\":\"struct Origin\",\"name\":\"_origin\",\"type\":\"tuple\"},{\"internalType\":\"bytes32\",\"name\":\"_guid\",\"type\":\"bytes32\"},{\"internalType\":\"bytes\",\"name\":\"_message\",\"type\":\"bytes\"},{\"internalType\":\"address\",\"name\":\"_executor\",\"type\":\"address\"},{\"internalType\":\"bytes\",\"name\":\"_extraData\",\"type\":\"bytes\"}],\"name\":\"lzReceive\",\"outputs\":[],\"stateMutability\":\"payable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"messageTransmitter\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint32\",\"name\":\"\",\"type\":\"uint32\"},{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"nextNonce\",\"outputs\":[{\"internalType\":\"uint64\",\"name\":\"nonce\",\"type\":\"uint64\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"oAppVersion\",\"outputs\":[{\"internalType\":\"uint64\",\"name\":\"senderVersion\",\"type\":\"uint64\"},{\"internalType\":\"uint64\",\"name\":\"receiverVersion\",\"type\":\"uint64\"}],\"stateMutability\":\"pure\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"owner\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint32\",\"name\":\"eid\",\"type\":\"uint32\"}],\"name\":\"peers\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"peer\",\"type\":\"bytes32\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"requestId\",\"type\":\"bytes32\"},{\"internalType\":\"uint256\",\"name\":\"amount\",\"type\":\"uint256\"}],\"name\":\"recordDirectPayment\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"renounceOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"bytes32\",\"name\":\"\",\"type\":\"bytes32\"}],\"name\":\"requests\",\"outputs\":[{\"internalType\":\"bytes32\",\"name\":\"requestId\",\"type\":\"bytes32\"},{\"internalType\":\"address\",\"name\":\"user\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"merchant\",\"type\":\"address\"},{\"internalType\":\"uint256\",\"name\":\"targetAmount\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"totalLocked\",\"type\":\"uint256\"},{\"internalType\":\"uint32\",\"name\":\"destinationChain\",\"type\":\"uint32\"},{\"internalType\":\"uint32\",\"name\":\"refundChain\",\"type\":\"uint32\"},{\"internalType\":\"uint256\",\"name\":\"deadline\",\"type\":\"uint256\"},{\"internalType\":\"uint256\",\"name\":\"refundGasDeposit\",\"type\":\"uint256\"},{\"internalType\":\"enum InstantAggregator.SettlementStatus\",\"name\":\"status\",\"type\":\"uint8\"},{\"internalType\":\"bool\",\"name\":\"exists\",\"type\":\"bool\"},{\"internalType\":\"uint256\",\"name\":\"usdcSettledAmount\",\"type\":\"uint256\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_delegate\",\"type\":\"address\"}],\"name\":\"setDelegate\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"uint32\",\"name\":\"_eid\",\"type\":\"uint32\"},{\"internalType\":\"bytes32\",\"name\":\"_peer\",\"type\":\"bytes32\"}],\"name\":\"setPeer\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"_swapRouter\",\"type\":\"address\"},{\"internalType\":\"address\",\"name\":\"_usdcToken\",\"type\":\"address\"}],\"name\":\"setSwapConfig\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"swapRouter\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"inputs\":[{\"internalType\":\"address\",\"name\":\"newOwner\",\"type\":\"address\"}],\"name\":\"transferOwnership\",\"outputs\":[],\"stateMutability\":\"nonpayable\",\"type\":\"function\"},{\"inputs\":[],\"name\":\"usdcToken\",\"outputs\":[{\"internalType\":\"address\",\"name\":\"\",\"type\":\"address\"}],\"stateMutability\":\"view\",\"type\":\"function\"},{\"stateMutability\":\"payable\",\"type\":\"receive\"}],\"devdoc\":{\"details\":\"Key innovation: Transfer USDC immediately when ALL payments confirmed via CCTP Speed comparison: - Traditional aggregation: 10-15 minutes (wait for all USDC to arrive) - CCTP aggregation: 1-2 minutes (Circle mints USDC directly to this contract) Flow: 1. Scan user balances across chains to determine exact amounts 2. User sends USDC from all source chains via SourceChainInitiator 3. SourceChainInitiator burns USDC via CCTP with hookData containing requestId 4. Circle mints USDC to this contract with handleReceiveMessage hook 5. When FULL amount received (100%), INSTANTLY transfer USDC to merchant 6. Merchant receives native USDC in ~2 minutes With CCTP: - USDC burned on source chains, minted natively on destination - Merchant receives native USDC (not wrapped) - No OFT Adapter issues - Circle handles everything No Partial Payments: - Must receive exact target amount (100%) - If deadline expires without full amount, request fails - All-or-nothing settlement\",\"errors\":{\"OwnableInvalidOwner(address)\":[{\"details\":\"The owner is not a valid owner account. (eg. `address(0)`)\"}],\"OwnableUnauthorizedAccount(address)\":[{\"details\":\"The caller account is not authorized to perform an operation.\"}],\"SafeERC20FailedOperation(address)\":[{\"details\":\"An operation with an ERC-20 token failed.\"}]},\"kind\":\"dev\",\"methods\":{\"allowInitializePath((uint32,bytes32,uint64))\":{\"details\":\"This indicates to the endpoint that the OApp has enabled msgs for this particular path to be received.This defaults to assuming if a peer has been set, its initialized. Can be overridden by the OApp if there is other logic to determine this.\",\"params\":{\"origin\":\"The origin information containing the source endpoint and sender address.\"},\"returns\":{\"_0\":\"Whether the path has been initialized.\"}},\"constructor\":{\"params\":{\"_endpoint\":\"LayerZero endpoint (for future cross-chain messages if needed)\",\"_messageTransmitter\":\"Circle CCTP MessageTransmitter address\",\"_owner\":\"Contract owner\"}},\"handleReceiveMessage(uint32,bytes32,bytes)\":{\"details\":\"Called by Circle's MessageTransmitter after minting USDC to this contract Flow: 1. User burns USDC on source chain via SourceChainInitiator 2. SourceChainInitiator includes requestId in hookData 3. Circle mints USDC to this contract 4. Circle calls this function with hookData 5. We decode requestId and add USDC to aggregation 6. If threshold met, instantly settle to merchant\"},\"initiateInstantAggregation(address,uint256,uint32,uint32[],uint256[])\":{\"details\":\"Agent calls this first, then sends lock messages to source chains\"},\"isComposeMsgSender((uint32,bytes32,uint64),bytes,address)\":{\"details\":\"_origin The origin information containing the source endpoint and sender address.  - srcEid: The source chain endpoint ID.  - sender: The sender address on the src chain.  - nonce: The nonce of the message._message The lzReceive payload.Applications can optionally choose to implement separate composeMsg senders that are NOT the bridging layer.The default sender IS the OAppReceiver implementer.\",\"params\":{\"_sender\":\"The sender address.\"},\"returns\":{\"_0\":\"isSender Is a valid sender.\"}},\"lzReceive((uint32,bytes32,uint64),bytes32,bytes,address,bytes)\":{\"details\":\"Entry point for receiving messages or packets from the endpoint.Entry point for receiving msg/packet from the LayerZero endpoint.\",\"params\":{\"_executor\":\"The address of the executor for the received message.\",\"_extraData\":\"Additional arbitrary data provided by the corresponding executor.\",\"_guid\":\"The unique identifier for the received LayerZero message.\",\"_message\":\"The payload of the received message.\",\"_origin\":\"The origin information containing the source endpoint and sender address.  - srcEid: The source chain endpoint ID.  - sender: The sender address on the src chain.  - nonce: The nonce of the message.\"}},\"nextNonce(uint32,bytes32)\":{\"details\":\"_srcEid The source endpoint ID._sender The sender address.The path nonce starts from 1. If 0 is returned it means that there is NO nonce ordered enforcement.Is required by the off-chain executor to determine the OApp expects msg execution is ordered.This is also enforced by the OApp.By default this is NOT enabled. ie. nextNonce is hardcoded to return 0.\",\"returns\":{\"nonce\":\"The next nonce.\"}},\"oAppVersion()\":{\"returns\":{\"receiverVersion\":\"The version of the OAppReceiver.sol implementation.\",\"senderVersion\":\"The version of the OAppSender.sol implementation.\"}},\"owner()\":{\"details\":\"Returns the address of the current owner.\"},\"recordDirectPayment(bytes32,uint256)\":{\"details\":\"Called by SourceChainInitiator when source and destination are the same chain\",\"params\":{\"amount\":\"Amount of USDC received (already transferred to this contract)\",\"requestId\":\"The aggregation request ID\"}},\"renounceOwnership()\":{\"details\":\"Leaves the contract without owner. It will not be possible to call `onlyOwner` functions. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby disabling any functionality that is only available to the owner.\"},\"setDelegate(address)\":{\"details\":\"Only the owner/admin of the OApp can call this function.Provides the ability for a delegate to set configs, on behalf of the OApp, directly on the Endpoint contract.\",\"params\":{\"_delegate\":\"The address of the delegate to be set.\"}},\"setPeer(uint32,bytes32)\":{\"details\":\"Only the owner/admin of the OApp can call this function.Indicates that the peer is trusted to send LayerZero messages to this OApp.Set this to bytes32(0) to remove the peer address.Peer is a bytes32 to accommodate non-evm chains.\",\"params\":{\"_eid\":\"The endpoint ID.\",\"_peer\":\"The address of the peer to be associated with the corresponding endpoint.\"}},\"setSwapConfig(address,address)\":{\"details\":\"Owner-only function to configure DEX integration\"},\"transferOwnership(address)\":{\"details\":\"Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner.\"}},\"stateVariables\":{\"messageTransmitter\":{\"details\":\"Circle calls handleReceiveMessage on this contract after minting USDC\"},\"swapRouter\":{\"details\":\"Used to swap non-USDC tokens (ARB, ETH, etc.) to USDC on-chain\"}},\"title\":\"InstantAggregator\",\"version\":1},\"userdoc\":{\"events\":{\"InstantAggregationInitiated(bytes32,address,address,uint256)\":{\"notice\":\"Events\"}},\"kind\":\"user\",\"methods\":{\"allowInitializePath((uint32,bytes32,uint64))\":{\"notice\":\"Checks if the path initialization is allowed based on the provided origin.\"},\"canInstantSettle(bytes32)\":{\"notice\":\"Check if instant settlement is possible\"},\"constructor\":{\"notice\":\"Constructor\"},\"emergencyWithdraw(address,address,uint256)\":{\"notice\":\"Emergency withdraw\"},\"endpoint()\":{\"notice\":\"Retrieves the LayerZero endpoint associated with the OApp.\"},\"expectedPerChain(bytes32,uint32)\":{\"notice\":\"Expected amounts per chain per request\"},\"getLockedAmount(bytes32,uint32)\":{\"notice\":\"Get locked amount per chain\"},\"getRequest(bytes32)\":{\"notice\":\"Get request details\"},\"handleReceiveMessage(uint32,bytes32,bytes)\":{\"notice\":\"CCTP Hook: Handle USDC receipt from Circle with hookData\"},\"initiateInstantAggregation(address,uint256,uint32,uint32[],uint256[])\":{\"notice\":\"Initiate instant aggregation\"},\"isComposeMsgSender((uint32,bytes32,uint64),bytes,address)\":{\"notice\":\"Indicates whether an address is an approved composeMsg sender to the Endpoint.\"},\"lockedPerChain(bytes32,uint32)\":{\"notice\":\"Locked amounts per chain per request\"},\"messageTransmitter()\":{\"notice\":\"Circle CCTP MessageTransmitter for receiving USDC with hooks\"},\"nextNonce(uint32,bytes32)\":{\"notice\":\"Retrieves the next nonce for a given source endpoint and sender address.\"},\"oAppVersion()\":{\"notice\":\"Retrieves the OApp version information.\"},\"peers(uint32)\":{\"notice\":\"Retrieves the peer (OApp) associated with a corresponding endpoint.\"},\"recordDirectPayment(bytes32,uint256)\":{\"notice\":\"Direct same-chain payment recording (no LayerZero needed)\"},\"requests(bytes32)\":{\"notice\":\"Requests mapping\"},\"setDelegate(address)\":{\"notice\":\"Sets the delegate address for the OApp.\"},\"setPeer(uint32,bytes32)\":{\"notice\":\"Sets the peer address (OApp instance) for a corresponding endpoint.\"},\"setSwapConfig(address,address)\":{\"notice\":\"Set swap router and USDC token addresses\"},\"swapRouter()\":{\"notice\":\"Uniswap V3 Swap Router for token swaps\"},\"usdcToken()\":{\"notice\":\"Native USDC token address\"}},\"notice\":\"FAST payment aggregation using Circle CCTP for instant settlement\",\"version\":1}},\"settings\":{\"compilationTarget\":{\"contracts/InstantAggregator.sol\":\"InstantAggregator\"},\"evmVersion\":\"paris\",\"libraries\":{},\"metadata\":{\"bytecodeHash\":\"ipfs\",\"useLiteralContent\":true},\"optimizer\":{\"enabled\":true,\"runs\":1000},\"remappings\":[]},\"sources\":{\"@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/ILayerZeroEndpointV2.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity >=0.8.0;\\n\\nimport { IMessageLibManager } from \\\"./IMessageLibManager.sol\\\";\\nimport { IMessagingComposer } from \\\"./IMessagingComposer.sol\\\";\\nimport { IMessagingChannel } from \\\"./IMessagingChannel.sol\\\";\\nimport { IMessagingContext } from \\\"./IMessagingContext.sol\\\";\\n\\nstruct MessagingParams {\\n    uint32 dstEid;\\n    bytes32 receiver;\\n    bytes message;\\n    bytes options;\\n    bool payInLzToken;\\n}\\n\\nstruct MessagingReceipt {\\n    bytes32 guid;\\n    uint64 nonce;\\n    MessagingFee fee;\\n}\\n\\nstruct MessagingFee {\\n    uint256 nativeFee;\\n    uint256 lzTokenFee;\\n}\\n\\nstruct Origin {\\n    uint32 srcEid;\\n    bytes32 sender;\\n    uint64 nonce;\\n}\\n\\ninterface ILayerZeroEndpointV2 is IMessageLibManager, IMessagingComposer, IMessagingChannel, IMessagingContext {\\n    event PacketSent(bytes encodedPayload, bytes options, address sendLibrary);\\n\\n    event PacketVerified(Origin origin, address receiver, bytes32 payloadHash);\\n\\n    event PacketDelivered(Origin origin, address receiver);\\n\\n    event LzReceiveAlert(\\n        address indexed receiver,\\n        address indexed executor,\\n        Origin origin,\\n        bytes32 guid,\\n        uint256 gas,\\n        uint256 value,\\n        bytes message,\\n        bytes extraData,\\n        bytes reason\\n    );\\n\\n    event LzTokenSet(address token);\\n\\n    event DelegateSet(address sender, address delegate);\\n\\n    function quote(MessagingParams calldata _params, address _sender) external view returns (MessagingFee memory);\\n\\n    function send(\\n        MessagingParams calldata _params,\\n        address _refundAddress\\n    ) external payable returns (MessagingReceipt memory);\\n\\n    function verify(Origin calldata _origin, address _receiver, bytes32 _payloadHash) external;\\n\\n    function verifiable(Origin calldata _origin, address _receiver) external view returns (bool);\\n\\n    function initializable(Origin calldata _origin, address _receiver) external view returns (bool);\\n\\n    function lzReceive(\\n        Origin calldata _origin,\\n        address _receiver,\\n        bytes32 _guid,\\n        bytes calldata _message,\\n        bytes calldata _extraData\\n    ) external payable;\\n\\n    // oapp can burn messages partially by calling this function with its own business logic if messages are verified in order\\n    function clear(address _oapp, Origin calldata _origin, bytes32 _guid, bytes calldata _message) external;\\n\\n    function setLzToken(address _lzToken) external;\\n\\n    function lzToken() external view returns (address);\\n\\n    function nativeToken() external view returns (address);\\n\\n    function setDelegate(address _delegate) external;\\n}\\n\",\"keccak256\":\"0xf7f941bee89ea6369950fe54e8ac476ae6478b958b20fc0e8a83e8ff1364eac3\",\"license\":\"MIT\"},\"@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/ILayerZeroReceiver.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity >=0.8.0;\\n\\nimport { Origin } from \\\"./ILayerZeroEndpointV2.sol\\\";\\n\\ninterface ILayerZeroReceiver {\\n    function allowInitializePath(Origin calldata _origin) external view returns (bool);\\n\\n    function nextNonce(uint32 _eid, bytes32 _sender) external view returns (uint64);\\n\\n    function lzReceive(\\n        Origin calldata _origin,\\n        bytes32 _guid,\\n        bytes calldata _message,\\n        address _executor,\\n        bytes calldata _extraData\\n    ) external payable;\\n}\\n\",\"keccak256\":\"0x9641abba8d53b08bb517d1b74801dd15ea7b84d77a6719085bd96c8ea94e3ca0\",\"license\":\"MIT\"},\"@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/IMessageLibManager.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity >=0.8.0;\\n\\nstruct SetConfigParam {\\n    uint32 eid;\\n    uint32 configType;\\n    bytes config;\\n}\\n\\ninterface IMessageLibManager {\\n    struct Timeout {\\n        address lib;\\n        uint256 expiry;\\n    }\\n\\n    event LibraryRegistered(address newLib);\\n    event DefaultSendLibrarySet(uint32 eid, address newLib);\\n    event DefaultReceiveLibrarySet(uint32 eid, address newLib);\\n    event DefaultReceiveLibraryTimeoutSet(uint32 eid, address oldLib, uint256 expiry);\\n    event SendLibrarySet(address sender, uint32 eid, address newLib);\\n    event ReceiveLibrarySet(address receiver, uint32 eid, address newLib);\\n    event ReceiveLibraryTimeoutSet(address receiver, uint32 eid, address oldLib, uint256 timeout);\\n\\n    function registerLibrary(address _lib) external;\\n\\n    function isRegisteredLibrary(address _lib) external view returns (bool);\\n\\n    function getRegisteredLibraries() external view returns (address[] memory);\\n\\n    function setDefaultSendLibrary(uint32 _eid, address _newLib) external;\\n\\n    function defaultSendLibrary(uint32 _eid) external view returns (address);\\n\\n    function setDefaultReceiveLibrary(uint32 _eid, address _newLib, uint256 _gracePeriod) external;\\n\\n    function defaultReceiveLibrary(uint32 _eid) external view returns (address);\\n\\n    function setDefaultReceiveLibraryTimeout(uint32 _eid, address _lib, uint256 _expiry) external;\\n\\n    function defaultReceiveLibraryTimeout(uint32 _eid) external view returns (address lib, uint256 expiry);\\n\\n    function isSupportedEid(uint32 _eid) external view returns (bool);\\n\\n    function isValidReceiveLibrary(address _receiver, uint32 _eid, address _lib) external view returns (bool);\\n\\n    /// ------------------- OApp interfaces -------------------\\n    function setSendLibrary(address _oapp, uint32 _eid, address _newLib) external;\\n\\n    function getSendLibrary(address _sender, uint32 _eid) external view returns (address lib);\\n\\n    function isDefaultSendLibrary(address _sender, uint32 _eid) external view returns (bool);\\n\\n    function setReceiveLibrary(address _oapp, uint32 _eid, address _newLib, uint256 _gracePeriod) external;\\n\\n    function getReceiveLibrary(address _receiver, uint32 _eid) external view returns (address lib, bool isDefault);\\n\\n    function setReceiveLibraryTimeout(address _oapp, uint32 _eid, address _lib, uint256 _expiry) external;\\n\\n    function receiveLibraryTimeout(address _receiver, uint32 _eid) external view returns (address lib, uint256 expiry);\\n\\n    function setConfig(address _oapp, address _lib, SetConfigParam[] calldata _params) external;\\n\\n    function getConfig(\\n        address _oapp,\\n        address _lib,\\n        uint32 _eid,\\n        uint32 _configType\\n    ) external view returns (bytes memory config);\\n}\\n\",\"keccak256\":\"0x919b37133adff4dc528e3061deb2789c3149971b530c61e556fb3d09ab315dfc\",\"license\":\"MIT\"},\"@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/IMessagingChannel.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity >=0.8.0;\\n\\ninterface IMessagingChannel {\\n    event InboundNonceSkipped(uint32 srcEid, bytes32 sender, address receiver, uint64 nonce);\\n    event PacketNilified(uint32 srcEid, bytes32 sender, address receiver, uint64 nonce, bytes32 payloadHash);\\n    event PacketBurnt(uint32 srcEid, bytes32 sender, address receiver, uint64 nonce, bytes32 payloadHash);\\n\\n    function eid() external view returns (uint32);\\n\\n    // this is an emergency function if a message cannot be verified for some reasons\\n    // required to provide _nextNonce to avoid race condition\\n    function skip(address _oapp, uint32 _srcEid, bytes32 _sender, uint64 _nonce) external;\\n\\n    function nilify(address _oapp, uint32 _srcEid, bytes32 _sender, uint64 _nonce, bytes32 _payloadHash) external;\\n\\n    function burn(address _oapp, uint32 _srcEid, bytes32 _sender, uint64 _nonce, bytes32 _payloadHash) external;\\n\\n    function nextGuid(address _sender, uint32 _dstEid, bytes32 _receiver) external view returns (bytes32);\\n\\n    function inboundNonce(address _receiver, uint32 _srcEid, bytes32 _sender) external view returns (uint64);\\n\\n    function outboundNonce(address _sender, uint32 _dstEid, bytes32 _receiver) external view returns (uint64);\\n\\n    function inboundPayloadHash(\\n        address _receiver,\\n        uint32 _srcEid,\\n        bytes32 _sender,\\n        uint64 _nonce\\n    ) external view returns (bytes32);\\n\\n    function lazyInboundNonce(address _receiver, uint32 _srcEid, bytes32 _sender) external view returns (uint64);\\n}\\n\",\"keccak256\":\"0x0878f64dffebf58c4165569416372f40860fab546b88cd926eba0d5cb6d8d972\",\"license\":\"MIT\"},\"@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/IMessagingComposer.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity >=0.8.0;\\n\\ninterface IMessagingComposer {\\n    event ComposeSent(address from, address to, bytes32 guid, uint16 index, bytes message);\\n    event ComposeDelivered(address from, address to, bytes32 guid, uint16 index);\\n    event LzComposeAlert(\\n        address indexed from,\\n        address indexed to,\\n        address indexed executor,\\n        bytes32 guid,\\n        uint16 index,\\n        uint256 gas,\\n        uint256 value,\\n        bytes message,\\n        bytes extraData,\\n        bytes reason\\n    );\\n\\n    function composeQueue(\\n        address _from,\\n        address _to,\\n        bytes32 _guid,\\n        uint16 _index\\n    ) external view returns (bytes32 messageHash);\\n\\n    function sendCompose(address _to, bytes32 _guid, uint16 _index, bytes calldata _message) external;\\n\\n    function lzCompose(\\n        address _from,\\n        address _to,\\n        bytes32 _guid,\\n        uint16 _index,\\n        bytes calldata _message,\\n        bytes calldata _extraData\\n    ) external payable;\\n}\\n\",\"keccak256\":\"0x85bc7090134529ec474866dc4bb1c48692d518c756eb0a961c82574829c51901\",\"license\":\"MIT\"},\"@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/IMessagingContext.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity >=0.8.0;\\n\\ninterface IMessagingContext {\\n    function isSendingMessage() external view returns (bool);\\n\\n    function getSendContext() external view returns (uint32 dstEid, address sender);\\n}\\n\",\"keccak256\":\"0xff0c546c2813dae3e440882f46b377375f7461b0714efd80bd3f0c6e5cb8da4e\",\"license\":\"MIT\"},\"@layerzerolabs/oapp-evm/contracts/oapp/OApp.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity ^0.8.20;\\n\\n// @dev Import the 'MessagingFee' and 'MessagingReceipt' so it's exposed to OApp implementers\\n// solhint-disable-next-line no-unused-import\\nimport { OAppSender, MessagingFee, MessagingReceipt } from \\\"./OAppSender.sol\\\";\\n// @dev Import the 'Origin' so it's exposed to OApp implementers\\n// solhint-disable-next-line no-unused-import\\nimport { OAppReceiver, Origin } from \\\"./OAppReceiver.sol\\\";\\nimport { OAppCore } from \\\"./OAppCore.sol\\\";\\n\\n/**\\n * @title OApp\\n * @dev Abstract contract serving as the base for OApp implementation, combining OAppSender and OAppReceiver functionality.\\n */\\nabstract contract OApp is OAppSender, OAppReceiver {\\n    /**\\n     * @dev Constructor to initialize the OApp with the provided endpoint and owner.\\n     * @param _endpoint The address of the LOCAL LayerZero endpoint.\\n     * @param _delegate The delegate capable of making OApp configurations inside of the endpoint.\\n     */\\n    constructor(address _endpoint, address _delegate) OAppCore(_endpoint, _delegate) {}\\n\\n    /**\\n     * @notice Retrieves the OApp version information.\\n     * @return senderVersion The version of the OAppSender.sol implementation.\\n     * @return receiverVersion The version of the OAppReceiver.sol implementation.\\n     */\\n    function oAppVersion()\\n        public\\n        pure\\n        virtual\\n        override(OAppSender, OAppReceiver)\\n        returns (uint64 senderVersion, uint64 receiverVersion)\\n    {\\n        return (SENDER_VERSION, RECEIVER_VERSION);\\n    }\\n}\\n\",\"keccak256\":\"0xac362c4c291fad2f1511a968424b2e78a5ad502d1c867bd31da04be742aca8c5\",\"license\":\"MIT\"},\"@layerzerolabs/oapp-evm/contracts/oapp/OAppCore.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity ^0.8.20;\\n\\nimport { Ownable } from \\\"@openzeppelin/contracts/access/Ownable.sol\\\";\\nimport { IOAppCore, ILayerZeroEndpointV2 } from \\\"./interfaces/IOAppCore.sol\\\";\\n\\n/**\\n * @title OAppCore\\n * @dev Abstract contract implementing the IOAppCore interface with basic OApp configurations.\\n */\\nabstract contract OAppCore is IOAppCore, Ownable {\\n    // The LayerZero endpoint associated with the given OApp\\n    ILayerZeroEndpointV2 public immutable endpoint;\\n\\n    // Mapping to store peers associated with corresponding endpoints\\n    mapping(uint32 eid => bytes32 peer) public peers;\\n\\n    /**\\n     * @dev Constructor to initialize the OAppCore with the provided endpoint and delegate.\\n     * @param _endpoint The address of the LOCAL Layer Zero endpoint.\\n     * @param _delegate The delegate capable of making OApp configurations inside of the endpoint.\\n     *\\n     * @dev The delegate typically should be set as the owner of the contract.\\n     */\\n    constructor(address _endpoint, address _delegate) {\\n        endpoint = ILayerZeroEndpointV2(_endpoint);\\n\\n        if (_delegate == address(0)) revert InvalidDelegate();\\n        endpoint.setDelegate(_delegate);\\n    }\\n\\n    /**\\n     * @notice Sets the peer address (OApp instance) for a corresponding endpoint.\\n     * @param _eid The endpoint ID.\\n     * @param _peer The address of the peer to be associated with the corresponding endpoint.\\n     *\\n     * @dev Only the owner/admin of the OApp can call this function.\\n     * @dev Indicates that the peer is trusted to send LayerZero messages to this OApp.\\n     * @dev Set this to bytes32(0) to remove the peer address.\\n     * @dev Peer is a bytes32 to accommodate non-evm chains.\\n     */\\n    function setPeer(uint32 _eid, bytes32 _peer) public virtual onlyOwner {\\n        _setPeer(_eid, _peer);\\n    }\\n\\n    /**\\n     * @notice Sets the peer address (OApp instance) for a corresponding endpoint.\\n     * @param _eid The endpoint ID.\\n     * @param _peer The address of the peer to be associated with the corresponding endpoint.\\n     *\\n     * @dev Indicates that the peer is trusted to send LayerZero messages to this OApp.\\n     * @dev Set this to bytes32(0) to remove the peer address.\\n     * @dev Peer is a bytes32 to accommodate non-evm chains.\\n     */\\n    function _setPeer(uint32 _eid, bytes32 _peer) internal virtual {\\n        peers[_eid] = _peer;\\n        emit PeerSet(_eid, _peer);\\n    }\\n\\n    /**\\n     * @notice Internal function to get the peer address associated with a specific endpoint; reverts if NOT set.\\n     * ie. the peer is set to bytes32(0).\\n     * @param _eid The endpoint ID.\\n     * @return peer The address of the peer associated with the specified endpoint.\\n     */\\n    function _getPeerOrRevert(uint32 _eid) internal view virtual returns (bytes32) {\\n        bytes32 peer = peers[_eid];\\n        if (peer == bytes32(0)) revert NoPeer(_eid);\\n        return peer;\\n    }\\n\\n    /**\\n     * @notice Sets the delegate address for the OApp.\\n     * @param _delegate The address of the delegate to be set.\\n     *\\n     * @dev Only the owner/admin of the OApp can call this function.\\n     * @dev Provides the ability for a delegate to set configs, on behalf of the OApp, directly on the Endpoint contract.\\n     */\\n    function setDelegate(address _delegate) public onlyOwner {\\n        endpoint.setDelegate(_delegate);\\n    }\\n}\\n\",\"keccak256\":\"0x13a9c2d1d2c1f086b8624f2e84c4a4702212daae36f701d92bb915b535cbe4cc\",\"license\":\"MIT\"},\"@layerzerolabs/oapp-evm/contracts/oapp/OAppReceiver.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity ^0.8.20;\\n\\nimport { IOAppReceiver, Origin } from \\\"./interfaces/IOAppReceiver.sol\\\";\\nimport { OAppCore } from \\\"./OAppCore.sol\\\";\\n\\n/**\\n * @title OAppReceiver\\n * @dev Abstract contract implementing the ILayerZeroReceiver interface and extending OAppCore for OApp receivers.\\n */\\nabstract contract OAppReceiver is IOAppReceiver, OAppCore {\\n    // Custom error message for when the caller is not the registered endpoint/\\n    error OnlyEndpoint(address addr);\\n\\n    // @dev The version of the OAppReceiver implementation.\\n    // @dev Version is bumped when changes are made to this contract.\\n    uint64 internal constant RECEIVER_VERSION = 2;\\n\\n    /**\\n     * @notice Retrieves the OApp version information.\\n     * @return senderVersion The version of the OAppSender.sol contract.\\n     * @return receiverVersion The version of the OAppReceiver.sol contract.\\n     *\\n     * @dev Providing 0 as the default for OAppSender version. Indicates that the OAppSender is not implemented.\\n     * ie. this is a RECEIVE only OApp.\\n     * @dev If the OApp uses both OAppSender and OAppReceiver, then this needs to be override returning the correct versions.\\n     */\\n    function oAppVersion() public view virtual returns (uint64 senderVersion, uint64 receiverVersion) {\\n        return (0, RECEIVER_VERSION);\\n    }\\n\\n    /**\\n     * @notice Indicates whether an address is an approved composeMsg sender to the Endpoint.\\n     * @dev _origin The origin information containing the source endpoint and sender address.\\n     *  - srcEid: The source chain endpoint ID.\\n     *  - sender: The sender address on the src chain.\\n     *  - nonce: The nonce of the message.\\n     * @dev _message The lzReceive payload.\\n     * @param _sender The sender address.\\n     * @return isSender Is a valid sender.\\n     *\\n     * @dev Applications can optionally choose to implement separate composeMsg senders that are NOT the bridging layer.\\n     * @dev The default sender IS the OAppReceiver implementer.\\n     */\\n    function isComposeMsgSender(\\n        Origin calldata /*_origin*/,\\n        bytes calldata /*_message*/,\\n        address _sender\\n    ) public view virtual returns (bool) {\\n        return _sender == address(this);\\n    }\\n\\n    /**\\n     * @notice Checks if the path initialization is allowed based on the provided origin.\\n     * @param origin The origin information containing the source endpoint and sender address.\\n     * @return Whether the path has been initialized.\\n     *\\n     * @dev This indicates to the endpoint that the OApp has enabled msgs for this particular path to be received.\\n     * @dev This defaults to assuming if a peer has been set, its initialized.\\n     * Can be overridden by the OApp if there is other logic to determine this.\\n     */\\n    function allowInitializePath(Origin calldata origin) public view virtual returns (bool) {\\n        return peers[origin.srcEid] == origin.sender;\\n    }\\n\\n    /**\\n     * @notice Retrieves the next nonce for a given source endpoint and sender address.\\n     * @dev _srcEid The source endpoint ID.\\n     * @dev _sender The sender address.\\n     * @return nonce The next nonce.\\n     *\\n     * @dev The path nonce starts from 1. If 0 is returned it means that there is NO nonce ordered enforcement.\\n     * @dev Is required by the off-chain executor to determine the OApp expects msg execution is ordered.\\n     * @dev This is also enforced by the OApp.\\n     * @dev By default this is NOT enabled. ie. nextNonce is hardcoded to return 0.\\n     */\\n    function nextNonce(uint32 /*_srcEid*/, bytes32 /*_sender*/) public view virtual returns (uint64 nonce) {\\n        return 0;\\n    }\\n\\n    /**\\n     * @dev Entry point for receiving messages or packets from the endpoint.\\n     * @param _origin The origin information containing the source endpoint and sender address.\\n     *  - srcEid: The source chain endpoint ID.\\n     *  - sender: The sender address on the src chain.\\n     *  - nonce: The nonce of the message.\\n     * @param _guid The unique identifier for the received LayerZero message.\\n     * @param _message The payload of the received message.\\n     * @param _executor The address of the executor for the received message.\\n     * @param _extraData Additional arbitrary data provided by the corresponding executor.\\n     *\\n     * @dev Entry point for receiving msg/packet from the LayerZero endpoint.\\n     */\\n    function lzReceive(\\n        Origin calldata _origin,\\n        bytes32 _guid,\\n        bytes calldata _message,\\n        address _executor,\\n        bytes calldata _extraData\\n    ) public payable virtual {\\n        // Ensures that only the endpoint can attempt to lzReceive() messages to this OApp.\\n        if (address(endpoint) != msg.sender) revert OnlyEndpoint(msg.sender);\\n\\n        // Ensure that the sender matches the expected peer for the source endpoint.\\n        if (_getPeerOrRevert(_origin.srcEid) != _origin.sender) revert OnlyPeer(_origin.srcEid, _origin.sender);\\n\\n        // Call the internal OApp implementation of lzReceive.\\n        _lzReceive(_origin, _guid, _message, _executor, _extraData);\\n    }\\n\\n    /**\\n     * @dev Internal function to implement lzReceive logic without needing to copy the basic parameter validation.\\n     */\\n    function _lzReceive(\\n        Origin calldata _origin,\\n        bytes32 _guid,\\n        bytes calldata _message,\\n        address _executor,\\n        bytes calldata _extraData\\n    ) internal virtual;\\n}\\n\",\"keccak256\":\"0x0174e9f1ec4cefe4b5adc26c392269c699b9ff75965364e5b7264426a462c70b\",\"license\":\"MIT\"},\"@layerzerolabs/oapp-evm/contracts/oapp/OAppSender.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity ^0.8.20;\\n\\nimport { SafeERC20, IERC20 } from \\\"@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol\\\";\\nimport { MessagingParams, MessagingFee, MessagingReceipt } from \\\"@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/ILayerZeroEndpointV2.sol\\\";\\nimport { OAppCore } from \\\"./OAppCore.sol\\\";\\n\\n/**\\n * @title OAppSender\\n * @dev Abstract contract implementing the OAppSender functionality for sending messages to a LayerZero endpoint.\\n */\\nabstract contract OAppSender is OAppCore {\\n    using SafeERC20 for IERC20;\\n\\n    // Custom error messages\\n    error NotEnoughNative(uint256 msgValue);\\n    error LzTokenUnavailable();\\n\\n    // @dev The version of the OAppSender implementation.\\n    // @dev Version is bumped when changes are made to this contract.\\n    uint64 internal constant SENDER_VERSION = 1;\\n\\n    /**\\n     * @notice Retrieves the OApp version information.\\n     * @return senderVersion The version of the OAppSender.sol contract.\\n     * @return receiverVersion The version of the OAppReceiver.sol contract.\\n     *\\n     * @dev Providing 0 as the default for OAppReceiver version. Indicates that the OAppReceiver is not implemented.\\n     * ie. this is a SEND only OApp.\\n     * @dev If the OApp uses both OAppSender and OAppReceiver, then this needs to be override returning the correct versions\\n     */\\n    function oAppVersion() public view virtual returns (uint64 senderVersion, uint64 receiverVersion) {\\n        return (SENDER_VERSION, 0);\\n    }\\n\\n    /**\\n     * @dev Internal function to interact with the LayerZero EndpointV2.quote() for fee calculation.\\n     * @param _dstEid The destination endpoint ID.\\n     * @param _message The message payload.\\n     * @param _options Additional options for the message.\\n     * @param _payInLzToken Flag indicating whether to pay the fee in LZ tokens.\\n     * @return fee The calculated MessagingFee for the message.\\n     *      - nativeFee: The native fee for the message.\\n     *      - lzTokenFee: The LZ token fee for the message.\\n     */\\n    function _quote(\\n        uint32 _dstEid,\\n        bytes memory _message,\\n        bytes memory _options,\\n        bool _payInLzToken\\n    ) internal view virtual returns (MessagingFee memory fee) {\\n        return\\n            endpoint.quote(\\n                MessagingParams(_dstEid, _getPeerOrRevert(_dstEid), _message, _options, _payInLzToken),\\n                address(this)\\n            );\\n    }\\n\\n    /**\\n     * @dev Internal function to interact with the LayerZero EndpointV2.send() for sending a message.\\n     * @param _dstEid The destination endpoint ID.\\n     * @param _message The message payload.\\n     * @param _options Additional options for the message.\\n     * @param _fee The calculated LayerZero fee for the message.\\n     *      - nativeFee: The native fee.\\n     *      - lzTokenFee: The lzToken fee.\\n     * @param _refundAddress The address to receive any excess fee values sent to the endpoint.\\n     * @return receipt The receipt for the sent message.\\n     *      - guid: The unique identifier for the sent message.\\n     *      - nonce: The nonce of the sent message.\\n     *      - fee: The LayerZero fee incurred for the message.\\n     */\\n    function _lzSend(\\n        uint32 _dstEid,\\n        bytes memory _message,\\n        bytes memory _options,\\n        MessagingFee memory _fee,\\n        address _refundAddress\\n    ) internal virtual returns (MessagingReceipt memory receipt) {\\n        // @dev Push corresponding fees to the endpoint, any excess is sent back to the _refundAddress from the endpoint.\\n        uint256 messageValue = _payNative(_fee.nativeFee);\\n        if (_fee.lzTokenFee > 0) _payLzToken(_fee.lzTokenFee);\\n\\n        return\\n            // solhint-disable-next-line check-send-result\\n            endpoint.send{ value: messageValue }(\\n                MessagingParams(_dstEid, _getPeerOrRevert(_dstEid), _message, _options, _fee.lzTokenFee > 0),\\n                _refundAddress\\n            );\\n    }\\n\\n    /**\\n     * @dev Internal function to pay the native fee associated with the message.\\n     * @param _nativeFee The native fee to be paid.\\n     * @return nativeFee The amount of native currency paid.\\n     *\\n     * @dev If the OApp needs to initiate MULTIPLE LayerZero messages in a single transaction,\\n     * this will need to be overridden because msg.value would contain multiple lzFees.\\n     * @dev Should be overridden in the event the LayerZero endpoint requires a different native currency.\\n     * @dev Some EVMs use an ERC20 as a method for paying transactions/gasFees.\\n     * @dev The endpoint is EITHER/OR, ie. it will NOT support both types of native payment at a time.\\n     */\\n    function _payNative(uint256 _nativeFee) internal virtual returns (uint256 nativeFee) {\\n        if (msg.value != _nativeFee) revert NotEnoughNative(msg.value);\\n        return _nativeFee;\\n    }\\n\\n    /**\\n     * @dev Internal function to pay the LZ token fee associated with the message.\\n     * @param _lzTokenFee The LZ token fee to be paid.\\n     *\\n     * @dev If the caller is trying to pay in the specified lzToken, then the lzTokenFee is passed to the endpoint.\\n     * @dev Any excess sent, is passed back to the specified _refundAddress in the _lzSend().\\n     */\\n    function _payLzToken(uint256 _lzTokenFee) internal virtual {\\n        // @dev Cannot cache the token because it is not immutable in the endpoint.\\n        address lzToken = endpoint.lzToken();\\n        if (lzToken == address(0)) revert LzTokenUnavailable();\\n\\n        // Pay LZ token fee by sending tokens to the endpoint.\\n        IERC20(lzToken).safeTransferFrom(msg.sender, address(endpoint), _lzTokenFee);\\n    }\\n}\\n\",\"keccak256\":\"0x518cf4adca601923ed4baa6619846a253ea32b8d8775f8bc1faa3dfac7f67c20\",\"license\":\"MIT\"},\"@layerzerolabs/oapp-evm/contracts/oapp/interfaces/IOAppCore.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n\\npragma solidity ^0.8.20;\\n\\nimport { ILayerZeroEndpointV2 } from \\\"@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/ILayerZeroEndpointV2.sol\\\";\\n\\n/**\\n * @title IOAppCore\\n */\\ninterface IOAppCore {\\n    // Custom error messages\\n    error OnlyPeer(uint32 eid, bytes32 sender);\\n    error NoPeer(uint32 eid);\\n    error InvalidEndpointCall();\\n    error InvalidDelegate();\\n\\n    // Event emitted when a peer (OApp) is set for a corresponding endpoint\\n    event PeerSet(uint32 eid, bytes32 peer);\\n\\n    /**\\n     * @notice Retrieves the OApp version information.\\n     * @return senderVersion The version of the OAppSender.sol contract.\\n     * @return receiverVersion The version of the OAppReceiver.sol contract.\\n     */\\n    function oAppVersion() external view returns (uint64 senderVersion, uint64 receiverVersion);\\n\\n    /**\\n     * @notice Retrieves the LayerZero endpoint associated with the OApp.\\n     * @return iEndpoint The LayerZero endpoint as an interface.\\n     */\\n    function endpoint() external view returns (ILayerZeroEndpointV2 iEndpoint);\\n\\n    /**\\n     * @notice Retrieves the peer (OApp) associated with a corresponding endpoint.\\n     * @param _eid The endpoint ID.\\n     * @return peer The peer address (OApp instance) associated with the corresponding endpoint.\\n     */\\n    function peers(uint32 _eid) external view returns (bytes32 peer);\\n\\n    /**\\n     * @notice Sets the peer address (OApp instance) for a corresponding endpoint.\\n     * @param _eid The endpoint ID.\\n     * @param _peer The address of the peer to be associated with the corresponding endpoint.\\n     */\\n    function setPeer(uint32 _eid, bytes32 _peer) external;\\n\\n    /**\\n     * @notice Sets the delegate address for the OApp Core.\\n     * @param _delegate The address of the delegate to be set.\\n     */\\n    function setDelegate(address _delegate) external;\\n}\\n\",\"keccak256\":\"0x40e49f2de74506e1da5dcaed53a39853f691647f4ceb0fccc8f49a68d3f47c58\",\"license\":\"MIT\"},\"@layerzerolabs/oapp-evm/contracts/oapp/interfaces/IOAppReceiver.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.20;\\n\\nimport { ILayerZeroReceiver, Origin } from \\\"@layerzerolabs/lz-evm-protocol-v2/contracts/interfaces/ILayerZeroReceiver.sol\\\";\\n\\ninterface IOAppReceiver is ILayerZeroReceiver {\\n    /**\\n     * @notice Indicates whether an address is an approved composeMsg sender to the Endpoint.\\n     * @param _origin The origin information containing the source endpoint and sender address.\\n     *  - srcEid: The source chain endpoint ID.\\n     *  - sender: The sender address on the src chain.\\n     *  - nonce: The nonce of the message.\\n     * @param _message The lzReceive payload.\\n     * @param _sender The sender address.\\n     * @return isSender Is a valid sender.\\n     *\\n     * @dev Applications can optionally choose to implement a separate composeMsg sender that is NOT the bridging layer.\\n     * @dev The default sender IS the OAppReceiver implementer.\\n     */\\n    function isComposeMsgSender(\\n        Origin calldata _origin,\\n        bytes calldata _message,\\n        address _sender\\n    ) external view returns (bool isSender);\\n}\\n\",\"keccak256\":\"0xd26135185e19b3732746d4a9e2923e896f28dec8664bab161faea2ee26fcdc3d\",\"license\":\"MIT\"},\"@openzeppelin/contracts/access/Ownable.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v5.0.0) (access/Ownable.sol)\\n\\npragma solidity ^0.8.20;\\n\\nimport {Context} from \\\"../utils/Context.sol\\\";\\n\\n/**\\n * @dev Contract module which provides a basic access control mechanism, where\\n * there is an account (an owner) that can be granted exclusive access to\\n * specific functions.\\n *\\n * The initial owner is set to the address provided by the deployer. This can\\n * later be changed with {transferOwnership}.\\n *\\n * This module is used through inheritance. It will make available the modifier\\n * `onlyOwner`, which can be applied to your functions to restrict their use to\\n * the owner.\\n */\\nabstract contract Ownable is Context {\\n    address private _owner;\\n\\n    /**\\n     * @dev The caller account is not authorized to perform an operation.\\n     */\\n    error OwnableUnauthorizedAccount(address account);\\n\\n    /**\\n     * @dev The owner is not a valid owner account. (eg. `address(0)`)\\n     */\\n    error OwnableInvalidOwner(address owner);\\n\\n    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);\\n\\n    /**\\n     * @dev Initializes the contract setting the address provided by the deployer as the initial owner.\\n     */\\n    constructor(address initialOwner) {\\n        if (initialOwner == address(0)) {\\n            revert OwnableInvalidOwner(address(0));\\n        }\\n        _transferOwnership(initialOwner);\\n    }\\n\\n    /**\\n     * @dev Throws if called by any account other than the owner.\\n     */\\n    modifier onlyOwner() {\\n        _checkOwner();\\n        _;\\n    }\\n\\n    /**\\n     * @dev Returns the address of the current owner.\\n     */\\n    function owner() public view virtual returns (address) {\\n        return _owner;\\n    }\\n\\n    /**\\n     * @dev Throws if the sender is not the owner.\\n     */\\n    function _checkOwner() internal view virtual {\\n        if (owner() != _msgSender()) {\\n            revert OwnableUnauthorizedAccount(_msgSender());\\n        }\\n    }\\n\\n    /**\\n     * @dev Leaves the contract without owner. It will not be possible to call\\n     * `onlyOwner` functions. Can only be called by the current owner.\\n     *\\n     * NOTE: Renouncing ownership will leave the contract without an owner,\\n     * thereby disabling any functionality that is only available to the owner.\\n     */\\n    function renounceOwnership() public virtual onlyOwner {\\n        _transferOwnership(address(0));\\n    }\\n\\n    /**\\n     * @dev Transfers ownership of the contract to a new account (`newOwner`).\\n     * Can only be called by the current owner.\\n     */\\n    function transferOwnership(address newOwner) public virtual onlyOwner {\\n        if (newOwner == address(0)) {\\n            revert OwnableInvalidOwner(address(0));\\n        }\\n        _transferOwnership(newOwner);\\n    }\\n\\n    /**\\n     * @dev Transfers ownership of the contract to a new account (`newOwner`).\\n     * Internal function without access restriction.\\n     */\\n    function _transferOwnership(address newOwner) internal virtual {\\n        address oldOwner = _owner;\\n        _owner = newOwner;\\n        emit OwnershipTransferred(oldOwner, newOwner);\\n    }\\n}\\n\",\"keccak256\":\"0xff6d0bb2e285473e5311d9d3caacb525ae3538a80758c10649a4d61029b017bb\",\"license\":\"MIT\"},\"@openzeppelin/contracts/interfaces/IERC1363.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v5.4.0) (interfaces/IERC1363.sol)\\n\\npragma solidity >=0.6.2;\\n\\nimport {IERC20} from \\\"./IERC20.sol\\\";\\nimport {IERC165} from \\\"./IERC165.sol\\\";\\n\\n/**\\n * @title IERC1363\\n * @dev Interface of the ERC-1363 standard as defined in the https://eips.ethereum.org/EIPS/eip-1363[ERC-1363].\\n *\\n * Defines an extension interface for ERC-20 tokens that supports executing code on a recipient contract\\n * after `transfer` or `transferFrom`, or code on a spender contract after `approve`, in a single transaction.\\n */\\ninterface IERC1363 is IERC20, IERC165 {\\n    /*\\n     * Note: the ERC-165 identifier for this interface is 0xb0202a11.\\n     * 0xb0202a11 ===\\n     *   bytes4(keccak256('transferAndCall(address,uint256)')) ^\\n     *   bytes4(keccak256('transferAndCall(address,uint256,bytes)')) ^\\n     *   bytes4(keccak256('transferFromAndCall(address,address,uint256)')) ^\\n     *   bytes4(keccak256('transferFromAndCall(address,address,uint256,bytes)')) ^\\n     *   bytes4(keccak256('approveAndCall(address,uint256)')) ^\\n     *   bytes4(keccak256('approveAndCall(address,uint256,bytes)'))\\n     */\\n\\n    /**\\n     * @dev Moves a `value` amount of tokens from the caller's account to `to`\\n     * and then calls {IERC1363Receiver-onTransferReceived} on `to`.\\n     * @param to The address which you want to transfer to.\\n     * @param value The amount of tokens to be transferred.\\n     * @return A boolean value indicating whether the operation succeeded unless throwing.\\n     */\\n    function transferAndCall(address to, uint256 value) external returns (bool);\\n\\n    /**\\n     * @dev Moves a `value` amount of tokens from the caller's account to `to`\\n     * and then calls {IERC1363Receiver-onTransferReceived} on `to`.\\n     * @param to The address which you want to transfer to.\\n     * @param value The amount of tokens to be transferred.\\n     * @param data Additional data with no specified format, sent in call to `to`.\\n     * @return A boolean value indicating whether the operation succeeded unless throwing.\\n     */\\n    function transferAndCall(address to, uint256 value, bytes calldata data) external returns (bool);\\n\\n    /**\\n     * @dev Moves a `value` amount of tokens from `from` to `to` using the allowance mechanism\\n     * and then calls {IERC1363Receiver-onTransferReceived} on `to`.\\n     * @param from The address which you want to send tokens from.\\n     * @param to The address which you want to transfer to.\\n     * @param value The amount of tokens to be transferred.\\n     * @return A boolean value indicating whether the operation succeeded unless throwing.\\n     */\\n    function transferFromAndCall(address from, address to, uint256 value) external returns (bool);\\n\\n    /**\\n     * @dev Moves a `value` amount of tokens from `from` to `to` using the allowance mechanism\\n     * and then calls {IERC1363Receiver-onTransferReceived} on `to`.\\n     * @param from The address which you want to send tokens from.\\n     * @param to The address which you want to transfer to.\\n     * @param value The amount of tokens to be transferred.\\n     * @param data Additional data with no specified format, sent in call to `to`.\\n     * @return A boolean value indicating whether the operation succeeded unless throwing.\\n     */\\n    function transferFromAndCall(address from, address to, uint256 value, bytes calldata data) external returns (bool);\\n\\n    /**\\n     * @dev Sets a `value` amount of tokens as the allowance of `spender` over the\\n     * caller's tokens and then calls {IERC1363Spender-onApprovalReceived} on `spender`.\\n     * @param spender The address which will spend the funds.\\n     * @param value The amount of tokens to be spent.\\n     * @return A boolean value indicating whether the operation succeeded unless throwing.\\n     */\\n    function approveAndCall(address spender, uint256 value) external returns (bool);\\n\\n    /**\\n     * @dev Sets a `value` amount of tokens as the allowance of `spender` over the\\n     * caller's tokens and then calls {IERC1363Spender-onApprovalReceived} on `spender`.\\n     * @param spender The address which will spend the funds.\\n     * @param value The amount of tokens to be spent.\\n     * @param data Additional data with no specified format, sent in call to `spender`.\\n     * @return A boolean value indicating whether the operation succeeded unless throwing.\\n     */\\n    function approveAndCall(address spender, uint256 value, bytes calldata data) external returns (bool);\\n}\\n\",\"keccak256\":\"0xd5ea07362ab630a6a3dee4285a74cf2377044ca2e4be472755ad64d7c5d4b69d\",\"license\":\"MIT\"},\"@openzeppelin/contracts/interfaces/IERC165.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v5.4.0) (interfaces/IERC165.sol)\\n\\npragma solidity >=0.4.16;\\n\\nimport {IERC165} from \\\"../utils/introspection/IERC165.sol\\\";\\n\",\"keccak256\":\"0x0afcb7e740d1537b252cb2676f600465ce6938398569f09ba1b9ca240dde2dfc\",\"license\":\"MIT\"},\"@openzeppelin/contracts/interfaces/IERC20.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v5.4.0) (interfaces/IERC20.sol)\\n\\npragma solidity >=0.4.16;\\n\\nimport {IERC20} from \\\"../token/ERC20/IERC20.sol\\\";\\n\",\"keccak256\":\"0x1a6221315ce0307746c2c4827c125d821ee796c74a676787762f4778671d4f44\",\"license\":\"MIT\"},\"@openzeppelin/contracts/token/ERC20/IERC20.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v5.4.0) (token/ERC20/IERC20.sol)\\n\\npragma solidity >=0.4.16;\\n\\n/**\\n * @dev Interface of the ERC-20 standard as defined in the ERC.\\n */\\ninterface IERC20 {\\n    /**\\n     * @dev Emitted when `value` tokens are moved from one account (`from`) to\\n     * another (`to`).\\n     *\\n     * Note that `value` may be zero.\\n     */\\n    event Transfer(address indexed from, address indexed to, uint256 value);\\n\\n    /**\\n     * @dev Emitted when the allowance of a `spender` for an `owner` is set by\\n     * a call to {approve}. `value` is the new allowance.\\n     */\\n    event Approval(address indexed owner, address indexed spender, uint256 value);\\n\\n    /**\\n     * @dev Returns the value of tokens in existence.\\n     */\\n    function totalSupply() external view returns (uint256);\\n\\n    /**\\n     * @dev Returns the value of tokens owned by `account`.\\n     */\\n    function balanceOf(address account) external view returns (uint256);\\n\\n    /**\\n     * @dev Moves a `value` amount of tokens from the caller's account to `to`.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * Emits a {Transfer} event.\\n     */\\n    function transfer(address to, uint256 value) external returns (bool);\\n\\n    /**\\n     * @dev Returns the remaining number of tokens that `spender` will be\\n     * allowed to spend on behalf of `owner` through {transferFrom}. This is\\n     * zero by default.\\n     *\\n     * This value changes when {approve} or {transferFrom} are called.\\n     */\\n    function allowance(address owner, address spender) external view returns (uint256);\\n\\n    /**\\n     * @dev Sets a `value` amount of tokens as the allowance of `spender` over the\\n     * caller's tokens.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * IMPORTANT: Beware that changing an allowance with this method brings the risk\\n     * that someone may use both the old and the new allowance by unfortunate\\n     * transaction ordering. One possible solution to mitigate this race\\n     * condition is to first reduce the spender's allowance to 0 and set the\\n     * desired value afterwards:\\n     * https://github.com/ethereum/EIPs/issues/20#issuecomment-263524729\\n     *\\n     * Emits an {Approval} event.\\n     */\\n    function approve(address spender, uint256 value) external returns (bool);\\n\\n    /**\\n     * @dev Moves a `value` amount of tokens from `from` to `to` using the\\n     * allowance mechanism. `value` is then deducted from the caller's\\n     * allowance.\\n     *\\n     * Returns a boolean value indicating whether the operation succeeded.\\n     *\\n     * Emits a {Transfer} event.\\n     */\\n    function transferFrom(address from, address to, uint256 value) external returns (bool);\\n}\\n\",\"keccak256\":\"0x74ed01eb66b923d0d0cfe3be84604ac04b76482a55f9dd655e1ef4d367f95bc2\",\"license\":\"MIT\"},\"@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v5.3.0) (token/ERC20/utils/SafeERC20.sol)\\n\\npragma solidity ^0.8.20;\\n\\nimport {IERC20} from \\\"../IERC20.sol\\\";\\nimport {IERC1363} from \\\"../../../interfaces/IERC1363.sol\\\";\\n\\n/**\\n * @title SafeERC20\\n * @dev Wrappers around ERC-20 operations that throw on failure (when the token\\n * contract returns false). Tokens that return no value (and instead revert or\\n * throw on failure) are also supported, non-reverting calls are assumed to be\\n * successful.\\n * To use this library you can add a `using SafeERC20 for IERC20;` statement to your contract,\\n * which allows you to call the safe operations as `token.safeTransfer(...)`, etc.\\n */\\nlibrary SafeERC20 {\\n    /**\\n     * @dev An operation with an ERC-20 token failed.\\n     */\\n    error SafeERC20FailedOperation(address token);\\n\\n    /**\\n     * @dev Indicates a failed `decreaseAllowance` request.\\n     */\\n    error SafeERC20FailedDecreaseAllowance(address spender, uint256 currentAllowance, uint256 requestedDecrease);\\n\\n    /**\\n     * @dev Transfer `value` amount of `token` from the calling contract to `to`. If `token` returns no value,\\n     * non-reverting calls are assumed to be successful.\\n     */\\n    function safeTransfer(IERC20 token, address to, uint256 value) internal {\\n        _callOptionalReturn(token, abi.encodeCall(token.transfer, (to, value)));\\n    }\\n\\n    /**\\n     * @dev Transfer `value` amount of `token` from `from` to `to`, spending the approval given by `from` to the\\n     * calling contract. If `token` returns no value, non-reverting calls are assumed to be successful.\\n     */\\n    function safeTransferFrom(IERC20 token, address from, address to, uint256 value) internal {\\n        _callOptionalReturn(token, abi.encodeCall(token.transferFrom, (from, to, value)));\\n    }\\n\\n    /**\\n     * @dev Variant of {safeTransfer} that returns a bool instead of reverting if the operation is not successful.\\n     */\\n    function trySafeTransfer(IERC20 token, address to, uint256 value) internal returns (bool) {\\n        return _callOptionalReturnBool(token, abi.encodeCall(token.transfer, (to, value)));\\n    }\\n\\n    /**\\n     * @dev Variant of {safeTransferFrom} that returns a bool instead of reverting if the operation is not successful.\\n     */\\n    function trySafeTransferFrom(IERC20 token, address from, address to, uint256 value) internal returns (bool) {\\n        return _callOptionalReturnBool(token, abi.encodeCall(token.transferFrom, (from, to, value)));\\n    }\\n\\n    /**\\n     * @dev Increase the calling contract's allowance toward `spender` by `value`. If `token` returns no value,\\n     * non-reverting calls are assumed to be successful.\\n     *\\n     * IMPORTANT: If the token implements ERC-7674 (ERC-20 with temporary allowance), and if the \\\"client\\\"\\n     * smart contract uses ERC-7674 to set temporary allowances, then the \\\"client\\\" smart contract should avoid using\\n     * this function. Performing a {safeIncreaseAllowance} or {safeDecreaseAllowance} operation on a token contract\\n     * that has a non-zero temporary allowance (for that particular owner-spender) will result in unexpected behavior.\\n     */\\n    function safeIncreaseAllowance(IERC20 token, address spender, uint256 value) internal {\\n        uint256 oldAllowance = token.allowance(address(this), spender);\\n        forceApprove(token, spender, oldAllowance + value);\\n    }\\n\\n    /**\\n     * @dev Decrease the calling contract's allowance toward `spender` by `requestedDecrease`. If `token` returns no\\n     * value, non-reverting calls are assumed to be successful.\\n     *\\n     * IMPORTANT: If the token implements ERC-7674 (ERC-20 with temporary allowance), and if the \\\"client\\\"\\n     * smart contract uses ERC-7674 to set temporary allowances, then the \\\"client\\\" smart contract should avoid using\\n     * this function. Performing a {safeIncreaseAllowance} or {safeDecreaseAllowance} operation on a token contract\\n     * that has a non-zero temporary allowance (for that particular owner-spender) will result in unexpected behavior.\\n     */\\n    function safeDecreaseAllowance(IERC20 token, address spender, uint256 requestedDecrease) internal {\\n        unchecked {\\n            uint256 currentAllowance = token.allowance(address(this), spender);\\n            if (currentAllowance < requestedDecrease) {\\n                revert SafeERC20FailedDecreaseAllowance(spender, currentAllowance, requestedDecrease);\\n            }\\n            forceApprove(token, spender, currentAllowance - requestedDecrease);\\n        }\\n    }\\n\\n    /**\\n     * @dev Set the calling contract's allowance toward `spender` to `value`. If `token` returns no value,\\n     * non-reverting calls are assumed to be successful. Meant to be used with tokens that require the approval\\n     * to be set to zero before setting it to a non-zero value, such as USDT.\\n     *\\n     * NOTE: If the token implements ERC-7674, this function will not modify any temporary allowance. This function\\n     * only sets the \\\"standard\\\" allowance. Any temporary allowance will remain active, in addition to the value being\\n     * set here.\\n     */\\n    function forceApprove(IERC20 token, address spender, uint256 value) internal {\\n        bytes memory approvalCall = abi.encodeCall(token.approve, (spender, value));\\n\\n        if (!_callOptionalReturnBool(token, approvalCall)) {\\n            _callOptionalReturn(token, abi.encodeCall(token.approve, (spender, 0)));\\n            _callOptionalReturn(token, approvalCall);\\n        }\\n    }\\n\\n    /**\\n     * @dev Performs an {ERC1363} transferAndCall, with a fallback to the simple {ERC20} transfer if the target has no\\n     * code. This can be used to implement an {ERC721}-like safe transfer that rely on {ERC1363} checks when\\n     * targeting contracts.\\n     *\\n     * Reverts if the returned value is other than `true`.\\n     */\\n    function transferAndCallRelaxed(IERC1363 token, address to, uint256 value, bytes memory data) internal {\\n        if (to.code.length == 0) {\\n            safeTransfer(token, to, value);\\n        } else if (!token.transferAndCall(to, value, data)) {\\n            revert SafeERC20FailedOperation(address(token));\\n        }\\n    }\\n\\n    /**\\n     * @dev Performs an {ERC1363} transferFromAndCall, with a fallback to the simple {ERC20} transferFrom if the target\\n     * has no code. This can be used to implement an {ERC721}-like safe transfer that rely on {ERC1363} checks when\\n     * targeting contracts.\\n     *\\n     * Reverts if the returned value is other than `true`.\\n     */\\n    function transferFromAndCallRelaxed(\\n        IERC1363 token,\\n        address from,\\n        address to,\\n        uint256 value,\\n        bytes memory data\\n    ) internal {\\n        if (to.code.length == 0) {\\n            safeTransferFrom(token, from, to, value);\\n        } else if (!token.transferFromAndCall(from, to, value, data)) {\\n            revert SafeERC20FailedOperation(address(token));\\n        }\\n    }\\n\\n    /**\\n     * @dev Performs an {ERC1363} approveAndCall, with a fallback to the simple {ERC20} approve if the target has no\\n     * code. This can be used to implement an {ERC721}-like safe transfer that rely on {ERC1363} checks when\\n     * targeting contracts.\\n     *\\n     * NOTE: When the recipient address (`to`) has no code (i.e. is an EOA), this function behaves as {forceApprove}.\\n     * Opposedly, when the recipient address (`to`) has code, this function only attempts to call {ERC1363-approveAndCall}\\n     * once without retrying, and relies on the returned value to be true.\\n     *\\n     * Reverts if the returned value is other than `true`.\\n     */\\n    function approveAndCallRelaxed(IERC1363 token, address to, uint256 value, bytes memory data) internal {\\n        if (to.code.length == 0) {\\n            forceApprove(token, to, value);\\n        } else if (!token.approveAndCall(to, value, data)) {\\n            revert SafeERC20FailedOperation(address(token));\\n        }\\n    }\\n\\n    /**\\n     * @dev Imitates a Solidity high-level call (i.e. a regular function call to a contract), relaxing the requirement\\n     * on the return value: the return value is optional (but if data is returned, it must not be false).\\n     * @param token The token targeted by the call.\\n     * @param data The call data (encoded using abi.encode or one of its variants).\\n     *\\n     * This is a variant of {_callOptionalReturnBool} that reverts if call fails to meet the requirements.\\n     */\\n    function _callOptionalReturn(IERC20 token, bytes memory data) private {\\n        uint256 returnSize;\\n        uint256 returnValue;\\n        assembly (\\\"memory-safe\\\") {\\n            let success := call(gas(), token, 0, add(data, 0x20), mload(data), 0, 0x20)\\n            // bubble errors\\n            if iszero(success) {\\n                let ptr := mload(0x40)\\n                returndatacopy(ptr, 0, returndatasize())\\n                revert(ptr, returndatasize())\\n            }\\n            returnSize := returndatasize()\\n            returnValue := mload(0)\\n        }\\n\\n        if (returnSize == 0 ? address(token).code.length == 0 : returnValue != 1) {\\n            revert SafeERC20FailedOperation(address(token));\\n        }\\n    }\\n\\n    /**\\n     * @dev Imitates a Solidity high-level call (i.e. a regular function call to a contract), relaxing the requirement\\n     * on the return value: the return value is optional (but if data is returned, it must not be false).\\n     * @param token The token targeted by the call.\\n     * @param data The call data (encoded using abi.encode or one of its variants).\\n     *\\n     * This is a variant of {_callOptionalReturn} that silently catches all reverts and returns a bool instead.\\n     */\\n    function _callOptionalReturnBool(IERC20 token, bytes memory data) private returns (bool) {\\n        bool success;\\n        uint256 returnSize;\\n        uint256 returnValue;\\n        assembly (\\\"memory-safe\\\") {\\n            success := call(gas(), token, 0, add(data, 0x20), mload(data), 0, 0x20)\\n            returnSize := returndatasize()\\n            returnValue := mload(0)\\n        }\\n        return success && (returnSize == 0 ? address(token).code.length > 0 : returnValue == 1);\\n    }\\n}\\n\",\"keccak256\":\"0x982c5cb790ab941d1e04f807120a71709d4c313ba0bfc16006447ffbd27fbbd5\",\"license\":\"MIT\"},\"@openzeppelin/contracts/utils/Context.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v5.0.1) (utils/Context.sol)\\n\\npragma solidity ^0.8.20;\\n\\n/**\\n * @dev Provides information about the current execution context, including the\\n * sender of the transaction and its data. While these are generally available\\n * via msg.sender and msg.data, they should not be accessed in such a direct\\n * manner, since when dealing with meta-transactions the account sending and\\n * paying for execution may not be the actual sender (as far as an application\\n * is concerned).\\n *\\n * This contract is only required for intermediate, library-like contracts.\\n */\\nabstract contract Context {\\n    function _msgSender() internal view virtual returns (address) {\\n        return msg.sender;\\n    }\\n\\n    function _msgData() internal view virtual returns (bytes calldata) {\\n        return msg.data;\\n    }\\n\\n    function _contextSuffixLength() internal view virtual returns (uint256) {\\n        return 0;\\n    }\\n}\\n\",\"keccak256\":\"0x493033a8d1b176a037b2cc6a04dad01a5c157722049bbecf632ca876224dd4b2\",\"license\":\"MIT\"},\"@openzeppelin/contracts/utils/introspection/IERC165.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\n// OpenZeppelin Contracts (last updated v5.4.0) (utils/introspection/IERC165.sol)\\n\\npragma solidity >=0.4.16;\\n\\n/**\\n * @dev Interface of the ERC-165 standard, as defined in the\\n * https://eips.ethereum.org/EIPS/eip-165[ERC].\\n *\\n * Implementers can declare support of contract interfaces, which can then be\\n * queried by others ({ERC165Checker}).\\n *\\n * For an implementation, see {ERC165}.\\n */\\ninterface IERC165 {\\n    /**\\n     * @dev Returns true if this contract implements the interface defined by\\n     * `interfaceId`. See the corresponding\\n     * https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified[ERC section]\\n     * to learn more about how these ids are created.\\n     *\\n     * This function call must use less than 30 000 gas.\\n     */\\n    function supportsInterface(bytes4 interfaceId) external view returns (bool);\\n}\\n\",\"keccak256\":\"0x8891738ffe910f0cf2da09566928589bf5d63f4524dd734fd9cedbac3274dd5c\",\"license\":\"MIT\"},\"contracts/InstantAggregator.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.22;\\n\\nimport { OApp, Origin, MessagingFee } from \\\"@layerzerolabs/oapp-evm/contracts/oapp/OApp.sol\\\";\\nimport { Ownable } from \\\"@openzeppelin/contracts/access/Ownable.sol\\\";\\nimport { IERC20 } from \\\"@openzeppelin/contracts/token/ERC20/IERC20.sol\\\";\\nimport { SafeERC20 } from \\\"@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol\\\";\\nimport { ISwapRouter } from \\\"./interfaces/ISwapRouter.sol\\\";\\n\\n/**\\n * @notice Circle CCTP MessageTransmitter interface for receiving hooks\\n */\\ninterface IMessageTransmitter {\\n    function receiveMessage(bytes calldata message, bytes calldata attestation) external returns (bool);\\n}\\n\\n/**\\n * @title InstantAggregator\\n * @notice FAST payment aggregation using Circle CCTP for instant settlement\\n * @dev Key innovation: Transfer USDC immediately when ALL payments confirmed via CCTP\\n *\\n * Speed comparison:\\n * - Traditional aggregation: 10-15 minutes (wait for all USDC to arrive)\\n * - CCTP aggregation: 1-2 minutes (Circle mints USDC directly to this contract)\\n *\\n * Flow:\\n * 1. Scan user balances across chains to determine exact amounts\\n * 2. User sends USDC from all source chains via SourceChainInitiator\\n * 3. SourceChainInitiator burns USDC via CCTP with hookData containing requestId\\n * 4. Circle mints USDC to this contract with handleReceiveMessage hook\\n * 5. When FULL amount received (100%), INSTANTLY transfer USDC to merchant\\n * 6. Merchant receives native USDC in ~2 minutes\\n *\\n * With CCTP:\\n * - USDC burned on source chains, minted natively on destination\\n * - Merchant receives native USDC (not wrapped)\\n * - No OFT Adapter issues - Circle handles everything\\n *\\n * No Partial Payments:\\n * - Must receive exact target amount (100%)\\n * - If deadline expires without full amount, request fails\\n * - All-or-nothing settlement\\n */\\ncontract InstantAggregator is OApp {\\n    using SafeERC20 for IERC20;\\n\\n    /// @notice Settlement status\\n    enum SettlementStatus {\\n        PENDING,           // Waiting for lock confirmations\\n        SETTLED,           // USDC transferred to merchant (INSTANT)\\n        REFUNDING,         // Refund in progress\\n        REFUNDED           // Refund completed\\n    }\\n\\n    /// @notice Aggregation request\\n    struct InstantAggregationRequest {\\n        bytes32 requestId;\\n        address user;\\n        address merchant;\\n        uint256 targetAmount;          // Exact amount required (100%)\\n        uint256 totalLocked;           // Total confirmed locks\\n        uint32 destinationChain;\\n        uint32 refundChain;\\n        uint256 deadline;              // 180 seconds (3 minutes)\\n        uint256 refundGasDeposit;\\n        SettlementStatus status;\\n        bool exists;\\n        uint256 usdcSettledAmount;     // USDC transferred to merchant\\n    }\\n\\n    /// @notice Circle CCTP MessageTransmitter for receiving USDC with hooks\\n    /// @dev Circle calls handleReceiveMessage on this contract after minting USDC\\n    address public messageTransmitter;\\n\\n    /// @notice Uniswap V3 Swap Router for token swaps\\n    /// @dev Used to swap non-USDC tokens (ARB, ETH, etc.) to USDC on-chain\\n    address public swapRouter;\\n\\n    /// @notice Native USDC token address\\n    address public usdcToken;\\n\\n    /// @notice Requests mapping\\n    mapping(bytes32 => InstantAggregationRequest) public requests;\\n\\n    /// @notice Locked amounts per chain per request\\n    mapping(bytes32 => mapping(uint32 => uint256)) public lockedPerChain;\\n\\n    /// @notice Expected amounts per chain per request\\n    mapping(bytes32 => mapping(uint32 => uint256)) public expectedPerChain;\\n\\n    /// @notice Events\\n    event InstantAggregationInitiated(\\n        bytes32 indexed requestId,\\n        address indexed user,\\n        address indexed merchant,\\n        uint256 targetAmount\\n    );\\n\\n    event LockConfirmed(\\n        bytes32 indexed requestId,\\n        uint32 indexed sourceChain,\\n        uint256 amount,\\n        uint256 totalLocked\\n    );\\n\\n    event InstantSettlement(\\n        bytes32 indexed requestId,\\n        address indexed merchant,\\n        uint256 usdcAmount,\\n        uint256 timeElapsed\\n    );\\n\\n    event TokenSwapped(\\n        bytes32 indexed requestId,\\n        address indexed tokenIn,\\n        uint256 amountIn,\\n        uint256 usdcOut\\n    );\\n\\n    /**\\n     * @notice Constructor\\n     * @param _endpoint LayerZero endpoint (for future cross-chain messages if needed)\\n     * @param _messageTransmitter Circle CCTP MessageTransmitter address\\n     * @param _owner Contract owner\\n     */\\n    constructor(\\n        address _endpoint,\\n        address _messageTransmitter,\\n        address _owner\\n    ) OApp(_endpoint, _owner) Ownable(_owner) {\\n        require(_messageTransmitter != address(0), \\\"Invalid MessageTransmitter\\\");\\n        messageTransmitter = _messageTransmitter;\\n    }\\n\\n    /**\\n     * @notice Set swap router and USDC token addresses\\n     * @dev Owner-only function to configure DEX integration\\n     */\\n    function setSwapConfig(address _swapRouter, address _usdcToken) external onlyOwner {\\n        require(_swapRouter != address(0), \\\"Invalid swap router\\\");\\n        require(_usdcToken != address(0), \\\"Invalid USDC token\\\");\\n        swapRouter = _swapRouter;\\n        usdcToken = _usdcToken;\\n    }\\n\\n    /**\\n     * @notice Initiate instant aggregation\\n     * @dev Agent calls this first, then sends lock messages to source chains\\n     */\\n    function initiateInstantAggregation(\\n        address merchant,\\n        uint256 targetAmount,\\n        uint32 refundChain,\\n        uint32[] calldata sourceChains,\\n        uint256[] calldata expectedAmounts\\n    ) external payable returns (bytes32 requestId) {\\n        require(merchant != address(0), \\\"Invalid merchant\\\");\\n        require(targetAmount > 0, \\\"Invalid amount\\\");\\n        require(sourceChains.length == expectedAmounts.length, \\\"Length mismatch\\\");\\n        require(msg.value >= 0.01 ether, \\\"Insufficient refund gas\\\");\\n\\n        requestId = keccak256(\\n            abi.encode(msg.sender, merchant, targetAmount, block.timestamp)\\n        );\\n\\n        requests[requestId] = InstantAggregationRequest({\\n            requestId: requestId,\\n            user: msg.sender,\\n            merchant: merchant,\\n            targetAmount: targetAmount,\\n            totalLocked: 0,\\n            destinationChain: uint32(endpoint.eid()),\\n            refundChain: refundChain,\\n            deadline: block.timestamp + 180, // 3 minutes\\n            refundGasDeposit: msg.value,\\n            status: SettlementStatus.PENDING,\\n            exists: true,\\n            usdcSettledAmount: 0\\n        });\\n\\n        // Store expected amounts per chain\\n        for (uint i = 0; i < sourceChains.length; i++) {\\n            expectedPerChain[requestId][sourceChains[i]] = expectedAmounts[i];\\n        }\\n\\n        emit InstantAggregationInitiated(\\n            requestId,\\n            msg.sender,\\n            merchant,\\n            targetAmount\\n        );\\n\\n        return requestId;\\n    }\\n\\n    /**\\n     * @notice Handle LayerZero messages (optional for future use)\\n     * @dev Currently not used since CCTP handles all cross-chain transfers\\n     *      Kept for potential future acknowledgments or status updates\\n     */\\n    function _lzReceive(\\n        Origin calldata,\\n        bytes32,\\n        bytes calldata,\\n        address,\\n        bytes calldata\\n    ) internal override {\\n        // Not currently used - CCTP handles all cross-chain transfers\\n        // Could be used for acknowledgments or status updates in the future\\n    }\\n\\n    /**\\n     * @notice INSTANT SETTLEMENT: Transfer USDC to merchant\\n     * @dev This happens as soon as threshold is met (1-2 minutes with CCTP Fast)\\n     * @dev The USDC was minted directly to this contract by Circle CCTP\\n     */\\n    function _instantSettle(bytes32 requestId, uint256 startTime) internal {\\n        InstantAggregationRequest storage request = requests[requestId];\\n\\n        // Transfer USDC to merchant (INSTANT PAYMENT)\\n        // Note: USDC was minted to this contract by Circle via CCTP\\n        IERC20(usdcToken).safeTransfer(request.merchant, request.totalLocked);\\n\\n        request.usdcSettledAmount = request.totalLocked;\\n        request.status = SettlementStatus.SETTLED;\\n\\n        uint256 timeElapsed = block.timestamp - startTime;\\n\\n        emit InstantSettlement(\\n            requestId,\\n            request.merchant,\\n            request.totalLocked,\\n            timeElapsed\\n        );\\n    }\\n\\n    /**\\n     * @notice Get request details\\n     */\\n    function getRequest(bytes32 requestId)\\n        external\\n        view\\n        returns (InstantAggregationRequest memory)\\n    {\\n        return requests[requestId];\\n    }\\n\\n    /**\\n     * @notice Get locked amount per chain\\n     */\\n    function getLockedAmount(bytes32 requestId, uint32 chainEid)\\n        external\\n        view\\n        returns (uint256)\\n    {\\n        return lockedPerChain[requestId][chainEid];\\n    }\\n\\n    /**\\n     * @notice Check if instant settlement is possible\\n     */\\n    function canInstantSettle(bytes32 requestId) external view returns (bool) {\\n        InstantAggregationRequest memory request = requests[requestId];\\n        return request.totalLocked == request.targetAmount && request.usdcSettledAmount == 0;\\n    }\\n\\n    /**\\n     * @notice Direct same-chain payment recording (no LayerZero needed)\\n     * @dev Called by SourceChainInitiator when source and destination are the same chain\\n     * @param requestId The aggregation request ID\\n     * @param amount Amount of USDC received (already transferred to this contract)\\n     */\\n    function recordDirectPayment(bytes32 requestId, uint256 amount) external {\\n        InstantAggregationRequest storage request = requests[requestId];\\n        require(request.exists, \\\"Request not found\\\");\\n        require(request.status == SettlementStatus.PENDING, \\\"Invalid status\\\");\\n\\n        // Add USDC to aggregation request\\n        request.totalLocked += amount;\\n\\n        emit LockConfirmed(\\n            requestId,\\n            uint32(endpoint.eid()),\\n            amount,\\n            request.totalLocked\\n        );\\n\\n        // Check if we can instant settle\\n        if (request.totalLocked == request.targetAmount && request.usdcSettledAmount == 0) {\\n            _instantSettle(requestId, block.timestamp);\\n        }\\n    }\\n\\n    /**\\n     * @notice CCTP Hook: Handle USDC receipt from Circle with hookData\\n     * @dev Called by Circle's MessageTransmitter after minting USDC to this contract\\n     *\\n     * Flow:\\n     * 1. User burns USDC on source chain via SourceChainInitiator\\n     * 2. SourceChainInitiator includes requestId in hookData\\n     * 3. Circle mints USDC to this contract\\n     * 4. Circle calls this function with hookData\\n     * 5. We decode requestId and add USDC to aggregation\\n     * 6. If threshold met, instantly settle to merchant\\n     */\\n    function handleReceiveMessage(\\n        uint32 /* sourceDomain */,\\n        bytes32 /* sender */,\\n        bytes calldata messageBody\\n    ) external returns (bool) {\\n        // Only Circle's MessageTransmitter can call this\\n        require(msg.sender == messageTransmitter, \\\"Only MessageTransmitter\\\");\\n\\n        // Decode hookData to get requestId\\n        bytes32 requestId = abi.decode(messageBody, (bytes32));\\n\\n        InstantAggregationRequest storage request = requests[requestId];\\n        require(request.exists, \\\"Request not found\\\");\\n        require(request.status == SettlementStatus.PENDING, \\\"Invalid status\\\");\\n\\n        // Get USDC balance (Circle just minted to this contract)\\n        uint256 usdcAmount = IERC20(usdcToken).balanceOf(address(this));\\n        require(usdcAmount > 0, \\\"No USDC received\\\");\\n\\n        // Add USDC to aggregation request\\n        request.totalLocked += usdcAmount;\\n\\n        emit LockConfirmed(\\n            requestId,\\n            uint32(endpoint.eid()),\\n            usdcAmount,\\n            request.totalLocked\\n        );\\n\\n        // Check if we can instant settle\\n        if (request.totalLocked == request.targetAmount && request.usdcSettledAmount == 0) {\\n            _instantSettle(requestId, block.timestamp);\\n        }\\n\\n        return true;\\n    }\\n\\n    /**\\n     * @notice Swap non-USDC token to USDC using Uniswap V3\\n     * @dev Gas for this function is pre-paid by user via lzComposeOptions\\n     * @param requestId Request ID for event tracking\\n     * @param tokenIn Token to swap from (ARB, ETH, etc.)\\n     * @param amountIn Amount of tokenIn to swap\\n     * @return usdcOut Amount of USDC received from swap\\n     */\\n    function _swapToUSDC(\\n        bytes32 requestId,\\n        address tokenIn,\\n        uint256 amountIn\\n    ) internal returns (uint256 usdcOut) {\\n        require(swapRouter != address(0), \\\"Swap router not configured\\\");\\n        require(usdcToken != address(0), \\\"USDC token not configured\\\");\\n\\n        // Approve Uniswap router to spend our tokens\\n        IERC20(tokenIn).safeIncreaseAllowance(swapRouter, amountIn);\\n\\n        // Swap using Uniswap V3 (on-chain, no API call)\\n        ISwapRouter.ExactInputSingleParams memory params = ISwapRouter.ExactInputSingleParams({\\n            tokenIn: tokenIn,\\n            tokenOut: usdcToken,\\n            fee: 3000, // 0.3% pool (most common)\\n            recipient: address(this),\\n            deadline: block.timestamp,\\n            amountIn: amountIn,\\n            amountOutMinimum: 0, // TODO: In production, calculate from oracle for slippage protection\\n            sqrtPriceLimitX96: 0\\n        });\\n\\n        usdcOut = ISwapRouter(swapRouter).exactInputSingle(params);\\n\\n        emit TokenSwapped(requestId, tokenIn, amountIn, usdcOut);\\n\\n        return usdcOut;\\n    }\\n\\n    /**\\n     * @notice Emergency withdraw\\n     */\\n    function emergencyWithdraw(address token, address to, uint256 amount)\\n        external\\n        onlyOwner\\n    {\\n        IERC20(token).safeTransfer(to, amount);\\n    }\\n\\n    receive() external payable {}\\n}\\n\",\"keccak256\":\"0xa2f50b0623dd018810af4cc90643b30a6f0a4c450189a8afe1380a8ef16d9714\",\"license\":\"MIT\"},\"contracts/interfaces/ISwapRouter.sol\":{\"content\":\"// SPDX-License-Identifier: MIT\\npragma solidity ^0.8.22;\\n\\n/**\\n * @title ISwapRouter\\n * @notice Minimal interface for Uniswap V3 SwapRouter\\n * @dev Used for swapping non-USDC tokens to USDC on-chain\\n *\\n * Deployed addresses (Mainnet & Testnets):\\n * - Ethereum: 0xE592427A0AEce92De3Edee1F18E0157C05861564\\n * - Arbitrum: 0xE592427A0AEce92De3Edee1F18E0157C05861564\\n * - Base: 0x2626664c2603336E57B271c5C0b26F421741e481\\n * - Optimism: 0xE592427A0AEce92De3Edee1F18E0157C05861564\\n */\\ninterface ISwapRouter {\\n    struct ExactInputSingleParams {\\n        address tokenIn;\\n        address tokenOut;\\n        uint24 fee;\\n        address recipient;\\n        uint256 deadline;\\n        uint256 amountIn;\\n        uint256 amountOutMinimum;\\n        uint160 sqrtPriceLimitX96;\\n    }\\n\\n    /**\\n     * @notice Swaps `amountIn` of one token for as much as possible of another token\\n     * @param params The parameters necessary for the swap, encoded as `ExactInputSingleParams` in calldata\\n     * @return amountOut The amount of the received token\\n     */\\n    function exactInputSingle(ExactInputSingleParams calldata params) external payable returns (uint256 amountOut);\\n}\\n\",\"keccak256\":\"0xadf1bb2eb4b6928eba0356a473a29890d8cc5fcd4c3226d95d6651fae40dd233\",\"license\":\"MIT\"}},\"version\":1}",
+  "bytecode": "0x60a06040523480156200001157600080fd5b506040516200215c3803806200215c8339810160408190526200003491620001f7565b82818181806001600160a01b0381166200006957604051631e4fbdf760e01b8152600060048201526024015b60405180910390fd5b62000074816200018a565b506001600160a01b038083166080528116620000a357604051632d618d8160e21b815260040160405180910390fd5b60805160405163ca5eb5e160e01b81526001600160a01b0383811660048301529091169063ca5eb5e190602401600060405180830381600087803b158015620000eb57600080fd5b505af115801562000100573d6000803e3d6000fd5b5050506001600160a01b03871694506200016293505050505760405162461bcd60e51b815260206004820152601a60248201527f496e76616c6964204d6573736167655472616e736d6974746572000000000000604482015260640162000060565b50600280546001600160a01b0319166001600160a01b03929092169190911790555062000241565b600080546001600160a01b038381166001600160a01b0319831681178455604051919092169283917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e09190a35050565b80516001600160a01b0381168114620001f257600080fd5b919050565b6000806000606084860312156200020d57600080fd5b6200021884620001da565b92506200022860208501620001da565b91506200023860408501620001da565b90509250925092565b608051611edc62000280600039600081816102d50152818161062001528181610b7e01528181610e5101528181611143015261128e0152611edc6000f3fe6080604052600436106101a55760003560e01c80638da5cb5b116100e1578063ca5eb5e11161008a578063e63ea40811610064578063e63ea40814610591578063f2fde38b146105b1578063fb1e61ca146105d1578063ff7bd03d146105fe57600080fd5b8063ca5eb5e114610519578063d8d9070a14610539578063e50418eb1461055957600080fd5b8063a339fb6b116100bb578063a339fb6b146104b9578063bb0b6a53146104cc578063c31c9c07146104f957600080fd5b80638da5cb5b146103cf57806396abeb70146103ed5780639d8669851461040d57600080fd5b80633ef803641161014e5780637b04c181116101285780637b04c1811461030c5780637d25a05e1461032c57806382413eac1461036857806383fa54361461039757600080fd5b80633ef80364146102935780635e280f11146102c3578063715018a6146102f757600080fd5b8063285ee61f1161017f578063285ee61f146102255780633400288b146102535780633e03c0621461027357600080fd5b806311eac855146101b157806313137d65146101ee57806317442b701461020357600080fd5b366101ac57005b600080fd5b3480156101bd57600080fd5b506004546101d1906001600160a01b031681565b6040516001600160a01b0390911681526020015b60405180910390f35b6102016101fc366004611902565b61061e565b005b34801561020f57600080fd5b50604080516001815260026020820152016101e5565b34801561023157600080fd5b506102456102403660046119b3565b610701565b6040519081526020016101e5565b34801561025f57600080fd5b5061020161026e3660046119e3565b610728565b34801561027f57600080fd5b5061020161028e366004611a0f565b61073e565b34801561029f57600080fd5b506102b36102ae366004611a42565b61082d565b60405190151581526020016101e5565b3480156102cf57600080fd5b506101d17f000000000000000000000000000000000000000000000000000000000000000081565b34801561030357600080fd5b50610201610932565b34801561031857600080fd5b506002546101d1906001600160a01b031681565b34801561033857600080fd5b5061034f6103473660046119e3565b600092915050565b60405167ffffffffffffffff90911681526020016101e5565b34801561037457600080fd5b506102b3610383366004611a5b565b6001600160a01b0381163014949350505050565b3480156103a357600080fd5b506102456103b23660046119b3565b600660209081526000928352604080842090915290825290205481565b3480156103db57600080fd5b506000546001600160a01b03166101d1565b3480156103f957600080fd5b506102b3610408366004611ac1565b610946565b34801561041957600080fd5b506104a1610428366004611a42565b6005602081905260009182526040909120805460018201546002830154600384015460048501549585015460068601546007870154600888015460099098015496986001600160a01b03968716989690951696939563ffffffff80851695640100000000909504169360ff80831692610100900416908c565b6040516101e59c9b9a99989796959493929190611b55565b6102456104c7366004611c14565b610c81565b3480156104d857600080fd5b506102456104e7366004611c9e565b60016020526000908152604090205481565b34801561050557600080fd5b506003546101d1906001600160a01b031681565b34801561052557600080fd5b50610201610534366004611cbb565b611103565b34801561054557600080fd5b50610201610554366004611cd6565b6111a2565b34801561056557600080fd5b506102456105743660046119b3565b600760209081526000928352604080842090915290825290205481565b34801561059d57600080fd5b506102016105ac366004611cf8565b611388565b3480156105bd57600080fd5b506102016105cc366004611cbb565b6113a4565b3480156105dd57600080fd5b506105f16105ec366004611a42565b6113fb565b6040516101e59190611d34565b34801561060a57600080fd5b506102b3610619366004611e02565b611545565b7f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03163314610687576040517f91ac5e4f0000000000000000000000000000000000000000000000000000000081523360048201526024015b60405180910390fd5b602087018035906106a19061069c908a611c9e565b61157b565b146106f8576106b36020880188611c9e565b6040517fc26bebcc00000000000000000000000000000000000000000000000000000000815263ffffffff90911660048201526020880135602482015260440161067e565b50505050505050565b600082815260066020908152604080832063ffffffff851684529091529020545b92915050565b6107306115d0565b61073a8282611616565b5050565b6107466115d0565b6001600160a01b03821661079c5760405162461bcd60e51b815260206004820152601360248201527f496e76616c6964207377617020726f7574657200000000000000000000000000604482015260640161067e565b6001600160a01b0381166107f25760405162461bcd60e51b815260206004820152601260248201527f496e76616c6964205553444320746f6b656e0000000000000000000000000000604482015260640161067e565b600380546001600160a01b0393841673ffffffffffffffffffffffffffffffffffffffff199182161790915560048054929093169116179055565b60008181526005602081815260408084208151610180810183528154815260018201546001600160a01b03908116948201949094526002820154909316918301919091526003808201546060840152600482015460808401529281015463ffffffff80821660a08501526401000000009091041660c0830152600681015460e083015260078101546101008301526008810154849361012084019160ff16908111156108db576108db611b1d565b60038111156108ec576108ec611b1d565b81526008820154610100900460ff16151560208201526009909101546040909101526060810151608082015191925014801561092b5750610160810151155b9392505050565b61093a6115d0565b610944600061166b565b565b6002546000906001600160a01b031633146109a35760405162461bcd60e51b815260206004820152601760248201527f4f6e6c79204d6573736167655472616e736d6974746572000000000000000000604482015260640161067e565b60006109b183850185611a42565b6000818152600560205260409020600881015491925090610100900460ff16610a1c5760405162461bcd60e51b815260206004820152601160248201527f52657175657374206e6f7420666f756e64000000000000000000000000000000604482015260640161067e565b6000600882015460ff166003811115610a3757610a37611b1d565b14610a845760405162461bcd60e51b815260206004820152600e60248201527f496e76616c696420737461747573000000000000000000000000000000000000604482015260640161067e565b600480546040517f70a0823100000000000000000000000000000000000000000000000000000000815230928101929092526000916001600160a01b03909116906370a0823190602401602060405180830381865afa158015610aeb573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610b0f9190611e1e565b905060008111610b615760405162461bcd60e51b815260206004820152601060248201527f4e6f205553444320726563656976656400000000000000000000000000000000604482015260640161067e565b80826004016000828254610b759190611e4d565b925050819055507f00000000000000000000000000000000000000000000000000000000000000006001600160a01b031663416ecebf6040518163ffffffff1660e01b8152600401602060405180830381865afa158015610bda573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610bfe9190611e60565b63ffffffff16837f5250e89d6040e30a574e249d69e2648763fb4c0fc19eecbc588336492c5070c2838560040154604051610c43929190918252602082015260400190565b60405180910390a381600301548260040154148015610c6457506009820154155b15610c7357610c7383426116c8565b506001979650505050505050565b60006001600160a01b038816610cd95760405162461bcd60e51b815260206004820152601060248201527f496e76616c6964206d65726368616e7400000000000000000000000000000000604482015260640161067e565b60008711610d295760405162461bcd60e51b815260206004820152600e60248201527f496e76616c696420616d6f756e74000000000000000000000000000000000000604482015260640161067e565b838214610d785760405162461bcd60e51b815260206004820152600f60248201527f4c656e677468206d69736d617463680000000000000000000000000000000000604482015260640161067e565b662386f26fc10000341015610dcf5760405162461bcd60e51b815260206004820152601760248201527f496e73756666696369656e7420726566756e6420676173000000000000000000604482015260640161067e565b604080513360208201526001600160a01b038a16918101919091526060810188905242608082015260a001604051602081830303815290604052805190602001209050604051806101800160405280828152602001336001600160a01b03168152602001896001600160a01b03168152602001888152602001600081526020017f00000000000000000000000000000000000000000000000000000000000000006001600160a01b031663416ecebf6040518163ffffffff1660e01b8152600401602060405180830381865afa158015610ead573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610ed19190611e60565b63ffffffff908116825288166020820152604001610ef04260b4611e4d565b8152346020820152604001600081526001602080830182905260006040938401819052858152600580835290849020855181559185015182840180546001600160a01b0392831673ffffffffffffffffffffffffffffffffffffffff1991821617909155948601516002840180549190921695169490941790935560608401516003808301919091556080850151600483015560a0850151938201805460c087015163ffffffff9081166401000000000267ffffffffffffffff199092169616959095179490941790935560e08401516006820155610100840151600782015561012084015160088201805492949193909260ff1916918490811115610ff857610ff8611b1d565b02179055506101408201516008820180549115156101000261ff00199092169190911790556101609091015160099091015560005b848110156110a95783838281811061104757611047611e7d565b9050602002013560076000848152602001908152602001600020600088888581811061107557611075611e7d565b905060200201602081019061108a9190611c9e565b63ffffffff16815260208101919091526040016000205560010161102d565b50876001600160a01b0316336001600160a01b0316827f910c91920adddf477c32bdb1375872b89041c5894899bf3c36dcb7bc7ac3aa868a6040516110f091815260200190565b60405180910390a4979650505050505050565b61110b6115d0565b6040517fca5eb5e10000000000000000000000000000000000000000000000000000000081526001600160a01b0382811660048301527f0000000000000000000000000000000000000000000000000000000000000000169063ca5eb5e190602401600060405180830381600087803b15801561118757600080fd5b505af115801561119b573d6000803e3d6000fd5b5050505050565b60008281526005602052604090206008810154610100900460ff166112095760405162461bcd60e51b815260206004820152601160248201527f52657175657374206e6f7420666f756e64000000000000000000000000000000604482015260640161067e565b6000600882015460ff16600381111561122457611224611b1d565b146112715760405162461bcd60e51b815260206004820152600e60248201527f496e76616c696420737461747573000000000000000000000000000000000000604482015260640161067e565b818160040160008282546112859190611e4d565b925050819055507f00000000000000000000000000000000000000000000000000000000000000006001600160a01b031663416ecebf6040518163ffffffff1660e01b8152600401602060405180830381865afa1580156112ea573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061130e9190611e60565b63ffffffff16837f5250e89d6040e30a574e249d69e2648763fb4c0fc19eecbc588336492c5070c2848460040154604051611353929190918252602082015260400190565b60405180910390a38060030154816004015414801561137457506009810154155b156113835761138383426116c8565b505050565b6113906115d0565b6113836001600160a01b038416838361177a565b6113ac6115d0565b6001600160a01b0381166113ef576040517f1e4fbdf70000000000000000000000000000000000000000000000000000000081526000600482015260240161067e565b6113f88161166b565b50565b6040805161018081018252600080825260208201819052918101829052606081018290526080810182905260a0810182905260c0810182905260e081018290526101008101829052610120810182905261014081018290526101608101919091526000828152600560208181526040928390208351610180810185528154815260018201546001600160a01b03908116938201939093526002820154909216938201939093526003808401546060830152600484015460808301529183015463ffffffff80821660a08401526401000000009091041660c0820152600683015460e08201526007830154610100820152600883015490929161012084019160ff169081111561150c5761150c611b1d565b600381111561151d5761151d611b1d565b81526008820154610100900460ff161515602082015260099091015460409091015292915050565b600060208201803590600190839061155d9086611c9e565b63ffffffff1681526020810191909152604001600020541492915050565b63ffffffff811660009081526001602052604081205480610722576040517ff6ff4fb700000000000000000000000000000000000000000000000000000000815263ffffffff8416600482015260240161067e565b6000546001600160a01b03163314610944576040517f118cdaa700000000000000000000000000000000000000000000000000000000815233600482015260240161067e565b63ffffffff8216600081815260016020908152604091829020849055815192835282018390527f238399d427b947898edb290f5ff0f9109849b1c3ba196a42e35f00c50a54b98b910160405180910390a15050565b600080546001600160a01b0383811673ffffffffffffffffffffffffffffffffffffffff19831681178455604051919092169283917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e09190a35050565b6000828152600560205260409020600281015460048083015490546116fb926001600160a01b039182169291169061177a565b6004810154600982015560088101805460ff1916600117905560006117208342611e93565b6002830154600484015460408051918252602082018490529293506001600160a01b039091169186917f1cb80bdd556de04fa6e50cdbc03a87f9069012fdbcb2b687a193f72c255d83f8910160405180910390a350505050565b604080516001600160a01b03841660248201526044808201849052825180830390910181526064909101909152602080820180517bffffffffffffffffffffffffffffffffffffffffffffffffffffffff167fa9059cbb000000000000000000000000000000000000000000000000000000001781528251611383938793909260009283929183919082885af180611818576040513d6000823e3d81fd5b50506000513d9150811561183057806001141561183d565b6001600160a01b0384163b155b1561187f576040517f5274afe70000000000000000000000000000000000000000000000000000000081526001600160a01b038516600482015260240161067e565b50505050565b60006060828403121561189757600080fd5b50919050565b60008083601f8401126118af57600080fd5b50813567ffffffffffffffff8111156118c757600080fd5b6020830191508360208285010111156118df57600080fd5b9250929050565b80356001600160a01b03811681146118fd57600080fd5b919050565b600080600080600080600060e0888a03121561191d57600080fd5b6119278989611885565b965060608801359550608088013567ffffffffffffffff8082111561194b57600080fd5b6119578b838c0161189d565b909750955085915061196b60a08b016118e6565b945060c08a013591508082111561198157600080fd5b5061198e8a828b0161189d565b989b979a50959850939692959293505050565b63ffffffff811681146113f857600080fd5b600080604083850312156119c657600080fd5b8235915060208301356119d8816119a1565b809150509250929050565b600080604083850312156119f657600080fd5b8235611a01816119a1565b946020939093013593505050565b60008060408385031215611a2257600080fd5b611a2b836118e6565b9150611a39602084016118e6565b90509250929050565b600060208284031215611a5457600080fd5b5035919050565b60008060008060a08587031215611a7157600080fd5b611a7b8686611885565b9350606085013567ffffffffffffffff811115611a9757600080fd5b611aa38782880161189d565b9094509250611ab69050608086016118e6565b905092959194509250565b60008060008060608587031215611ad757600080fd5b8435611ae2816119a1565b935060208501359250604085013567ffffffffffffffff811115611b0557600080fd5b611b118782880161189d565b95989497509550505050565b634e487b7160e01b600052602160045260246000fd5b60048110611b5157634e487b7160e01b600052602160045260246000fd5b9052565b8c81526001600160a01b038c811660208301528b166040820152606081018a90526080810189905263ffffffff88811660a0830152871660c082015260e0810186905261010081018590526101808101611bb3610120830186611b33565b92151561014082015261016001529a9950505050505050505050565b60008083601f840112611be157600080fd5b50813567ffffffffffffffff811115611bf957600080fd5b6020830191508360208260051b85010111156118df57600080fd5b600080600080600080600060a0888a031215611c2f57600080fd5b611c38886118e6565b9650602088013595506040880135611c4f816119a1565b9450606088013567ffffffffffffffff80821115611c6c57600080fd5b611c788b838c01611bcf565b909650945060808a0135915080821115611c9157600080fd5b5061198e8a828b01611bcf565b600060208284031215611cb057600080fd5b813561092b816119a1565b600060208284031215611ccd57600080fd5b61092b826118e6565b60008060408385031215611ce957600080fd5b50508035926020909101359150565b600080600060608486031215611d0d57600080fd5b611d16846118e6565b9250611d24602085016118e6565b9150604084013590509250925092565b81518152602080830151610180830191611d58908401826001600160a01b03169052565b506040830151611d7360408401826001600160a01b03169052565b50606083015160608301526080830151608083015260a0830151611d9f60a084018263ffffffff169052565b5060c0830151611db760c084018263ffffffff169052565b5060e083015160e083015261010080840151818401525061012080840151611de182850182611b33565b50506101408381015180151584830152505061016092830151919092015290565b600060608284031215611e1457600080fd5b61092b8383611885565b600060208284031215611e3057600080fd5b5051919050565b634e487b7160e01b600052601160045260246000fd5b8082018082111561072257610722611e37565b600060208284031215611e7257600080fd5b815161092b816119a1565b634e487b7160e01b600052603260045260246000fd5b8181038181111561072257610722611e3756fea26469706673582212204824206f3b179bdf153401501c70b322ccbd65b6222e2b72af9963334a2852a164736f6c63430008160033",
+  "deployedBytecode": "0x6080604052600436106101a55760003560e01c80638da5cb5b116100e1578063ca5eb5e11161008a578063e63ea40811610064578063e63ea40814610591578063f2fde38b146105b1578063fb1e61ca146105d1578063ff7bd03d146105fe57600080fd5b8063ca5eb5e114610519578063d8d9070a14610539578063e50418eb1461055957600080fd5b8063a339fb6b116100bb578063a339fb6b146104b9578063bb0b6a53146104cc578063c31c9c07146104f957600080fd5b80638da5cb5b146103cf57806396abeb70146103ed5780639d8669851461040d57600080fd5b80633ef803641161014e5780637b04c181116101285780637b04c1811461030c5780637d25a05e1461032c57806382413eac1461036857806383fa54361461039757600080fd5b80633ef80364146102935780635e280f11146102c3578063715018a6146102f757600080fd5b8063285ee61f1161017f578063285ee61f146102255780633400288b146102535780633e03c0621461027357600080fd5b806311eac855146101b157806313137d65146101ee57806317442b701461020357600080fd5b366101ac57005b600080fd5b3480156101bd57600080fd5b506004546101d1906001600160a01b031681565b6040516001600160a01b0390911681526020015b60405180910390f35b6102016101fc366004611902565b61061e565b005b34801561020f57600080fd5b50604080516001815260026020820152016101e5565b34801561023157600080fd5b506102456102403660046119b3565b610701565b6040519081526020016101e5565b34801561025f57600080fd5b5061020161026e3660046119e3565b610728565b34801561027f57600080fd5b5061020161028e366004611a0f565b61073e565b34801561029f57600080fd5b506102b36102ae366004611a42565b61082d565b60405190151581526020016101e5565b3480156102cf57600080fd5b506101d17f000000000000000000000000000000000000000000000000000000000000000081565b34801561030357600080fd5b50610201610932565b34801561031857600080fd5b506002546101d1906001600160a01b031681565b34801561033857600080fd5b5061034f6103473660046119e3565b600092915050565b60405167ffffffffffffffff90911681526020016101e5565b34801561037457600080fd5b506102b3610383366004611a5b565b6001600160a01b0381163014949350505050565b3480156103a357600080fd5b506102456103b23660046119b3565b600660209081526000928352604080842090915290825290205481565b3480156103db57600080fd5b506000546001600160a01b03166101d1565b3480156103f957600080fd5b506102b3610408366004611ac1565b610946565b34801561041957600080fd5b506104a1610428366004611a42565b6005602081905260009182526040909120805460018201546002830154600384015460048501549585015460068601546007870154600888015460099098015496986001600160a01b03968716989690951696939563ffffffff80851695640100000000909504169360ff80831692610100900416908c565b6040516101e59c9b9a99989796959493929190611b55565b6102456104c7366004611c14565b610c81565b3480156104d857600080fd5b506102456104e7366004611c9e565b60016020526000908152604090205481565b34801561050557600080fd5b506003546101d1906001600160a01b031681565b34801561052557600080fd5b50610201610534366004611cbb565b611103565b34801561054557600080fd5b50610201610554366004611cd6565b6111a2565b34801561056557600080fd5b506102456105743660046119b3565b600760209081526000928352604080842090915290825290205481565b34801561059d57600080fd5b506102016105ac366004611cf8565b611388565b3480156105bd57600080fd5b506102016105cc366004611cbb565b6113a4565b3480156105dd57600080fd5b506105f16105ec366004611a42565b6113fb565b6040516101e59190611d34565b34801561060a57600080fd5b506102b3610619366004611e02565b611545565b7f00000000000000000000000000000000000000000000000000000000000000006001600160a01b03163314610687576040517f91ac5e4f0000000000000000000000000000000000000000000000000000000081523360048201526024015b60405180910390fd5b602087018035906106a19061069c908a611c9e565b61157b565b146106f8576106b36020880188611c9e565b6040517fc26bebcc00000000000000000000000000000000000000000000000000000000815263ffffffff90911660048201526020880135602482015260440161067e565b50505050505050565b600082815260066020908152604080832063ffffffff851684529091529020545b92915050565b6107306115d0565b61073a8282611616565b5050565b6107466115d0565b6001600160a01b03821661079c5760405162461bcd60e51b815260206004820152601360248201527f496e76616c6964207377617020726f7574657200000000000000000000000000604482015260640161067e565b6001600160a01b0381166107f25760405162461bcd60e51b815260206004820152601260248201527f496e76616c6964205553444320746f6b656e0000000000000000000000000000604482015260640161067e565b600380546001600160a01b0393841673ffffffffffffffffffffffffffffffffffffffff199182161790915560048054929093169116179055565b60008181526005602081815260408084208151610180810183528154815260018201546001600160a01b03908116948201949094526002820154909316918301919091526003808201546060840152600482015460808401529281015463ffffffff80821660a08501526401000000009091041660c0830152600681015460e083015260078101546101008301526008810154849361012084019160ff16908111156108db576108db611b1d565b60038111156108ec576108ec611b1d565b81526008820154610100900460ff16151560208201526009909101546040909101526060810151608082015191925014801561092b5750610160810151155b9392505050565b61093a6115d0565b610944600061166b565b565b6002546000906001600160a01b031633146109a35760405162461bcd60e51b815260206004820152601760248201527f4f6e6c79204d6573736167655472616e736d6974746572000000000000000000604482015260640161067e565b60006109b183850185611a42565b6000818152600560205260409020600881015491925090610100900460ff16610a1c5760405162461bcd60e51b815260206004820152601160248201527f52657175657374206e6f7420666f756e64000000000000000000000000000000604482015260640161067e565b6000600882015460ff166003811115610a3757610a37611b1d565b14610a845760405162461bcd60e51b815260206004820152600e60248201527f496e76616c696420737461747573000000000000000000000000000000000000604482015260640161067e565b600480546040517f70a0823100000000000000000000000000000000000000000000000000000000815230928101929092526000916001600160a01b03909116906370a0823190602401602060405180830381865afa158015610aeb573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610b0f9190611e1e565b905060008111610b615760405162461bcd60e51b815260206004820152601060248201527f4e6f205553444320726563656976656400000000000000000000000000000000604482015260640161067e565b80826004016000828254610b759190611e4d565b925050819055507f00000000000000000000000000000000000000000000000000000000000000006001600160a01b031663416ecebf6040518163ffffffff1660e01b8152600401602060405180830381865afa158015610bda573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610bfe9190611e60565b63ffffffff16837f5250e89d6040e30a574e249d69e2648763fb4c0fc19eecbc588336492c5070c2838560040154604051610c43929190918252602082015260400190565b60405180910390a381600301548260040154148015610c6457506009820154155b15610c7357610c7383426116c8565b506001979650505050505050565b60006001600160a01b038816610cd95760405162461bcd60e51b815260206004820152601060248201527f496e76616c6964206d65726368616e7400000000000000000000000000000000604482015260640161067e565b60008711610d295760405162461bcd60e51b815260206004820152600e60248201527f496e76616c696420616d6f756e74000000000000000000000000000000000000604482015260640161067e565b838214610d785760405162461bcd60e51b815260206004820152600f60248201527f4c656e677468206d69736d617463680000000000000000000000000000000000604482015260640161067e565b662386f26fc10000341015610dcf5760405162461bcd60e51b815260206004820152601760248201527f496e73756666696369656e7420726566756e6420676173000000000000000000604482015260640161067e565b604080513360208201526001600160a01b038a16918101919091526060810188905242608082015260a001604051602081830303815290604052805190602001209050604051806101800160405280828152602001336001600160a01b03168152602001896001600160a01b03168152602001888152602001600081526020017f00000000000000000000000000000000000000000000000000000000000000006001600160a01b031663416ecebf6040518163ffffffff1660e01b8152600401602060405180830381865afa158015610ead573d6000803e3d6000fd5b505050506040513d601f19601f82011682018060405250810190610ed19190611e60565b63ffffffff908116825288166020820152604001610ef04260b4611e4d565b8152346020820152604001600081526001602080830182905260006040938401819052858152600580835290849020855181559185015182840180546001600160a01b0392831673ffffffffffffffffffffffffffffffffffffffff1991821617909155948601516002840180549190921695169490941790935560608401516003808301919091556080850151600483015560a0850151938201805460c087015163ffffffff9081166401000000000267ffffffffffffffff199092169616959095179490941790935560e08401516006820155610100840151600782015561012084015160088201805492949193909260ff1916918490811115610ff857610ff8611b1d565b02179055506101408201516008820180549115156101000261ff00199092169190911790556101609091015160099091015560005b848110156110a95783838281811061104757611047611e7d565b9050602002013560076000848152602001908152602001600020600088888581811061107557611075611e7d565b905060200201602081019061108a9190611c9e565b63ffffffff16815260208101919091526040016000205560010161102d565b50876001600160a01b0316336001600160a01b0316827f910c91920adddf477c32bdb1375872b89041c5894899bf3c36dcb7bc7ac3aa868a6040516110f091815260200190565b60405180910390a4979650505050505050565b61110b6115d0565b6040517fca5eb5e10000000000000000000000000000000000000000000000000000000081526001600160a01b0382811660048301527f0000000000000000000000000000000000000000000000000000000000000000169063ca5eb5e190602401600060405180830381600087803b15801561118757600080fd5b505af115801561119b573d6000803e3d6000fd5b5050505050565b60008281526005602052604090206008810154610100900460ff166112095760405162461bcd60e51b815260206004820152601160248201527f52657175657374206e6f7420666f756e64000000000000000000000000000000604482015260640161067e565b6000600882015460ff16600381111561122457611224611b1d565b146112715760405162461bcd60e51b815260206004820152600e60248201527f496e76616c696420737461747573000000000000000000000000000000000000604482015260640161067e565b818160040160008282546112859190611e4d565b925050819055507f00000000000000000000000000000000000000000000000000000000000000006001600160a01b031663416ecebf6040518163ffffffff1660e01b8152600401602060405180830381865afa1580156112ea573d6000803e3d6000fd5b505050506040513d601f19601f8201168201806040525081019061130e9190611e60565b63ffffffff16837f5250e89d6040e30a574e249d69e2648763fb4c0fc19eecbc588336492c5070c2848460040154604051611353929190918252602082015260400190565b60405180910390a38060030154816004015414801561137457506009810154155b156113835761138383426116c8565b505050565b6113906115d0565b6113836001600160a01b038416838361177a565b6113ac6115d0565b6001600160a01b0381166113ef576040517f1e4fbdf70000000000000000000000000000000000000000000000000000000081526000600482015260240161067e565b6113f88161166b565b50565b6040805161018081018252600080825260208201819052918101829052606081018290526080810182905260a0810182905260c0810182905260e081018290526101008101829052610120810182905261014081018290526101608101919091526000828152600560208181526040928390208351610180810185528154815260018201546001600160a01b03908116938201939093526002820154909216938201939093526003808401546060830152600484015460808301529183015463ffffffff80821660a08401526401000000009091041660c0820152600683015460e08201526007830154610100820152600883015490929161012084019160ff169081111561150c5761150c611b1d565b600381111561151d5761151d611b1d565b81526008820154610100900460ff161515602082015260099091015460409091015292915050565b600060208201803590600190839061155d9086611c9e565b63ffffffff1681526020810191909152604001600020541492915050565b63ffffffff811660009081526001602052604081205480610722576040517ff6ff4fb700000000000000000000000000000000000000000000000000000000815263ffffffff8416600482015260240161067e565b6000546001600160a01b03163314610944576040517f118cdaa700000000000000000000000000000000000000000000000000000000815233600482015260240161067e565b63ffffffff8216600081815260016020908152604091829020849055815192835282018390527f238399d427b947898edb290f5ff0f9109849b1c3ba196a42e35f00c50a54b98b910160405180910390a15050565b600080546001600160a01b0383811673ffffffffffffffffffffffffffffffffffffffff19831681178455604051919092169283917f8be0079c531659141344cd1fd0a4f28419497f9722a3daafe3b4186f6b6457e09190a35050565b6000828152600560205260409020600281015460048083015490546116fb926001600160a01b039182169291169061177a565b6004810154600982015560088101805460ff1916600117905560006117208342611e93565b6002830154600484015460408051918252602082018490529293506001600160a01b039091169186917f1cb80bdd556de04fa6e50cdbc03a87f9069012fdbcb2b687a193f72c255d83f8910160405180910390a350505050565b604080516001600160a01b03841660248201526044808201849052825180830390910181526064909101909152602080820180517bffffffffffffffffffffffffffffffffffffffffffffffffffffffff167fa9059cbb000000000000000000000000000000000000000000000000000000001781528251611383938793909260009283929183919082885af180611818576040513d6000823e3d81fd5b50506000513d9150811561183057806001141561183d565b6001600160a01b0384163b155b1561187f576040517f5274afe70000000000000000000000000000000000000000000000000000000081526001600160a01b038516600482015260240161067e565b50505050565b60006060828403121561189757600080fd5b50919050565b60008083601f8401126118af57600080fd5b50813567ffffffffffffffff8111156118c757600080fd5b6020830191508360208285010111156118df57600080fd5b9250929050565b80356001600160a01b03811681146118fd57600080fd5b919050565b600080600080600080600060e0888a03121561191d57600080fd5b6119278989611885565b965060608801359550608088013567ffffffffffffffff8082111561194b57600080fd5b6119578b838c0161189d565b909750955085915061196b60a08b016118e6565b945060c08a013591508082111561198157600080fd5b5061198e8a828b0161189d565b989b979a50959850939692959293505050565b63ffffffff811681146113f857600080fd5b600080604083850312156119c657600080fd5b8235915060208301356119d8816119a1565b809150509250929050565b600080604083850312156119f657600080fd5b8235611a01816119a1565b946020939093013593505050565b60008060408385031215611a2257600080fd5b611a2b836118e6565b9150611a39602084016118e6565b90509250929050565b600060208284031215611a5457600080fd5b5035919050565b60008060008060a08587031215611a7157600080fd5b611a7b8686611885565b9350606085013567ffffffffffffffff811115611a9757600080fd5b611aa38782880161189d565b9094509250611ab69050608086016118e6565b905092959194509250565b60008060008060608587031215611ad757600080fd5b8435611ae2816119a1565b935060208501359250604085013567ffffffffffffffff811115611b0557600080fd5b611b118782880161189d565b95989497509550505050565b634e487b7160e01b600052602160045260246000fd5b60048110611b5157634e487b7160e01b600052602160045260246000fd5b9052565b8c81526001600160a01b038c811660208301528b166040820152606081018a90526080810189905263ffffffff88811660a0830152871660c082015260e0810186905261010081018590526101808101611bb3610120830186611b33565b92151561014082015261016001529a9950505050505050505050565b60008083601f840112611be157600080fd5b50813567ffffffffffffffff811115611bf957600080fd5b6020830191508360208260051b85010111156118df57600080fd5b600080600080600080600060a0888a031215611c2f57600080fd5b611c38886118e6565b9650602088013595506040880135611c4f816119a1565b9450606088013567ffffffffffffffff80821115611c6c57600080fd5b611c788b838c01611bcf565b909650945060808a0135915080821115611c9157600080fd5b5061198e8a828b01611bcf565b600060208284031215611cb057600080fd5b813561092b816119a1565b600060208284031215611ccd57600080fd5b61092b826118e6565b60008060408385031215611ce957600080fd5b50508035926020909101359150565b600080600060608486031215611d0d57600080fd5b611d16846118e6565b9250611d24602085016118e6565b9150604084013590509250925092565b81518152602080830151610180830191611d58908401826001600160a01b03169052565b506040830151611d7360408401826001600160a01b03169052565b50606083015160608301526080830151608083015260a0830151611d9f60a084018263ffffffff169052565b5060c0830151611db760c084018263ffffffff169052565b5060e083015160e083015261010080840151818401525061012080840151611de182850182611b33565b50506101408381015180151584830152505061016092830151919092015290565b600060608284031215611e1457600080fd5b61092b8383611885565b600060208284031215611e3057600080fd5b5051919050565b634e487b7160e01b600052601160045260246000fd5b8082018082111561072257610722611e37565b600060208284031215611e7257600080fd5b815161092b816119a1565b634e487b7160e01b600052603260045260246000fd5b8181038181111561072257610722611e3756fea26469706673582212204824206f3b179bdf153401501c70b322ccbd65b6222e2b72af9963334a2852a164736f6c63430008160033",
+  "devdoc": {
+    "details": "Key innovation: Transfer USDC immediately when ALL payments confirmed via CCTP Speed comparison: - Traditional aggregation: 10-15 minutes (wait for all USDC to arrive) - CCTP aggregation: 1-2 minutes (Circle mints USDC directly to this contract) Flow: 1. Scan user balances across chains to determine exact amounts 2. User sends USDC from all source chains via SourceChainInitiator 3. SourceChainInitiator burns USDC via CCTP with hookData containing requestId 4. Circle mints USDC to this contract with handleReceiveMessage hook 5. When FULL amount received (100%), INSTANTLY transfer USDC to merchant 6. Merchant receives native USDC in ~2 minutes With CCTP: - USDC burned on source chains, minted natively on destination - Merchant receives native USDC (not wrapped) - No OFT Adapter issues - Circle handles everything No Partial Payments: - Must receive exact target amount (100%) - If deadline expires without full amount, request fails - All-or-nothing settlement",
+    "errors": {
+      "OwnableInvalidOwner(address)": [
+        {
+          "details": "The owner is not a valid owner account. (eg. `address(0)`)"
+        }
+      ],
+      "OwnableUnauthorizedAccount(address)": [
+        {
+          "details": "The caller account is not authorized to perform an operation."
+        }
+      ],
+      "SafeERC20FailedOperation(address)": [
+        {
+          "details": "An operation with an ERC-20 token failed."
+        }
+      ]
+    },
+    "kind": "dev",
+    "methods": {
+      "allowInitializePath((uint32,bytes32,uint64))": {
+        "details": "This indicates to the endpoint that the OApp has enabled msgs for this particular path to be received.This defaults to assuming if a peer has been set, its initialized. Can be overridden by the OApp if there is other logic to determine this.",
+        "params": {
+          "origin": "The origin information containing the source endpoint and sender address."
+        },
+        "returns": {
+          "_0": "Whether the path has been initialized."
+        }
+      },
+      "constructor": {
+        "params": {
+          "_endpoint": "LayerZero endpoint (for future cross-chain messages if needed)",
+          "_messageTransmitter": "Circle CCTP MessageTransmitter address",
+          "_owner": "Contract owner"
+        }
+      },
+      "handleReceiveMessage(uint32,bytes32,bytes)": {
+        "details": "Called by Circle's MessageTransmitter after minting USDC to this contract Flow: 1. User burns USDC on source chain via SourceChainInitiator 2. SourceChainInitiator includes requestId in hookData 3. Circle mints USDC to this contract 4. Circle calls this function with hookData 5. We decode requestId and add USDC to aggregation 6. If threshold met, instantly settle to merchant"
+      },
+      "initiateInstantAggregation(address,uint256,uint32,uint32[],uint256[])": {
+        "details": "Agent calls this first, then sends lock messages to source chains"
+      },
+      "isComposeMsgSender((uint32,bytes32,uint64),bytes,address)": {
+        "details": "_origin The origin information containing the source endpoint and sender address.  - srcEid: The source chain endpoint ID.  - sender: The sender address on the src chain.  - nonce: The nonce of the message._message The lzReceive payload.Applications can optionally choose to implement separate composeMsg senders that are NOT the bridging layer.The default sender IS the OAppReceiver implementer.",
+        "params": {
+          "_sender": "The sender address."
+        },
+        "returns": {
+          "_0": "isSender Is a valid sender."
+        }
+      },
+      "lzReceive((uint32,bytes32,uint64),bytes32,bytes,address,bytes)": {
+        "details": "Entry point for receiving messages or packets from the endpoint.Entry point for receiving msg/packet from the LayerZero endpoint.",
+        "params": {
+          "_executor": "The address of the executor for the received message.",
+          "_extraData": "Additional arbitrary data provided by the corresponding executor.",
+          "_guid": "The unique identifier for the received LayerZero message.",
+          "_message": "The payload of the received message.",
+          "_origin": "The origin information containing the source endpoint and sender address.  - srcEid: The source chain endpoint ID.  - sender: The sender address on the src chain.  - nonce: The nonce of the message."
+        }
+      },
+      "nextNonce(uint32,bytes32)": {
+        "details": "_srcEid The source endpoint ID._sender The sender address.The path nonce starts from 1. If 0 is returned it means that there is NO nonce ordered enforcement.Is required by the off-chain executor to determine the OApp expects msg execution is ordered.This is also enforced by the OApp.By default this is NOT enabled. ie. nextNonce is hardcoded to return 0.",
+        "returns": {
+          "nonce": "The next nonce."
+        }
+      },
+      "oAppVersion()": {
+        "returns": {
+          "receiverVersion": "The version of the OAppReceiver.sol implementation.",
+          "senderVersion": "The version of the OAppSender.sol implementation."
+        }
+      },
+      "owner()": {
+        "details": "Returns the address of the current owner."
+      },
+      "recordDirectPayment(bytes32,uint256)": {
+        "details": "Called by SourceChainInitiator when source and destination are the same chain",
+        "params": {
+          "amount": "Amount of USDC received (already transferred to this contract)",
+          "requestId": "The aggregation request ID"
+        }
+      },
+      "renounceOwnership()": {
+        "details": "Leaves the contract without owner. It will not be possible to call `onlyOwner` functions. Can only be called by the current owner. NOTE: Renouncing ownership will leave the contract without an owner, thereby disabling any functionality that is only available to the owner."
+      },
+      "setDelegate(address)": {
+        "details": "Only the owner/admin of the OApp can call this function.Provides the ability for a delegate to set configs, on behalf of the OApp, directly on the Endpoint contract.",
+        "params": {
+          "_delegate": "The address of the delegate to be set."
+        }
+      },
+      "setPeer(uint32,bytes32)": {
+        "details": "Only the owner/admin of the OApp can call this function.Indicates that the peer is trusted to send LayerZero messages to this OApp.Set this to bytes32(0) to remove the peer address.Peer is a bytes32 to accommodate non-evm chains.",
+        "params": {
+          "_eid": "The endpoint ID.",
+          "_peer": "The address of the peer to be associated with the corresponding endpoint."
+        }
+      },
+      "setSwapConfig(address,address)": {
+        "details": "Owner-only function to configure DEX integration"
+      },
+      "transferOwnership(address)": {
+        "details": "Transfers ownership of the contract to a new account (`newOwner`). Can only be called by the current owner."
+      }
+    },
+    "stateVariables": {
+      "messageTransmitter": {
+        "details": "Circle calls handleReceiveMessage on this contract after minting USDC"
+      },
+      "swapRouter": {
+        "details": "Used to swap non-USDC tokens (ARB, ETH, etc.) to USDC on-chain"
+      }
+    },
+    "title": "InstantAggregator",
+    "version": 1
+  },
+  "userdoc": {
+    "events": {
+      "InstantAggregationInitiated(bytes32,address,address,uint256)": {
+        "notice": "Events"
+      }
+    },
+    "kind": "user",
+    "methods": {
+      "allowInitializePath((uint32,bytes32,uint64))": {
+        "notice": "Checks if the path initialization is allowed based on the provided origin."
+      },
+      "canInstantSettle(bytes32)": {
+        "notice": "Check if instant settlement is possible"
+      },
+      "constructor": {
+        "notice": "Constructor"
+      },
+      "emergencyWithdraw(address,address,uint256)": {
+        "notice": "Emergency withdraw"
+      },
+      "endpoint()": {
+        "notice": "Retrieves the LayerZero endpoint associated with the OApp."
+      },
+      "expectedPerChain(bytes32,uint32)": {
+        "notice": "Expected amounts per chain per request"
+      },
+      "getLockedAmount(bytes32,uint32)": {
+        "notice": "Get locked amount per chain"
+      },
+      "getRequest(bytes32)": {
+        "notice": "Get request details"
+      },
+      "handleReceiveMessage(uint32,bytes32,bytes)": {
+        "notice": "CCTP Hook: Handle USDC receipt from Circle with hookData"
+      },
+      "initiateInstantAggregation(address,uint256,uint32,uint32[],uint256[])": {
+        "notice": "Initiate instant aggregation"
+      },
+      "isComposeMsgSender((uint32,bytes32,uint64),bytes,address)": {
+        "notice": "Indicates whether an address is an approved composeMsg sender to the Endpoint."
+      },
+      "lockedPerChain(bytes32,uint32)": {
+        "notice": "Locked amounts per chain per request"
+      },
+      "messageTransmitter()": {
+        "notice": "Circle CCTP MessageTransmitter for receiving USDC with hooks"
+      },
+      "nextNonce(uint32,bytes32)": {
+        "notice": "Retrieves the next nonce for a given source endpoint and sender address."
+      },
+      "oAppVersion()": {
+        "notice": "Retrieves the OApp version information."
+      },
+      "peers(uint32)": {
+        "notice": "Retrieves the peer (OApp) associated with a corresponding endpoint."
+      },
+      "recordDirectPayment(bytes32,uint256)": {
+        "notice": "Direct same-chain payment recording (no LayerZero needed)"
+      },
+      "requests(bytes32)": {
+        "notice": "Requests mapping"
+      },
+      "setDelegate(address)": {
+        "notice": "Sets the delegate address for the OApp."
+      },
+      "setPeer(uint32,bytes32)": {
+        "notice": "Sets the peer address (OApp instance) for a corresponding endpoint."
+      },
+      "setSwapConfig(address,address)": {
+        "notice": "Set swap router and USDC token addresses"
+      },
+      "swapRouter()": {
+        "notice": "Uniswap V3 Swap Router for token swaps"
+      },
+      "usdcToken()": {
+        "notice": "Native USDC token address"
+      }
+    },
+    "notice": "FAST payment aggregation using Circle CCTP for instant settlement",
+    "version": 1
+  },
+  "storageLayout": {
+    "storage": [
+      {
+        "astId": 1327,
+        "contract": "contracts/InstantAggregator.sol:InstantAggregator",
+        "label": "_owner",
+        "offset": 0,
+        "slot": "0",
+        "type": "t_address"
+      },
+      {
+        "astId": 785,
+        "contract": "contracts/InstantAggregator.sol:InstantAggregator",
+        "label": "peers",
+        "offset": 0,
+        "slot": "1",
+        "type": "t_mapping(t_uint32,t_bytes32)"
+      },
+      {
+        "astId": 3023,
+        "contract": "contracts/InstantAggregator.sol:InstantAggregator",
+        "label": "messageTransmitter",
+        "offset": 0,
+        "slot": "2",
+        "type": "t_address"
+      },
+      {
+        "astId": 3026,
+        "contract": "contracts/InstantAggregator.sol:InstantAggregator",
+        "label": "swapRouter",
+        "offset": 0,
+        "slot": "3",
+        "type": "t_address"
+      },
+      {
+        "astId": 3029,
+        "contract": "contracts/InstantAggregator.sol:InstantAggregator",
+        "label": "usdcToken",
+        "offset": 0,
+        "slot": "4",
+        "type": "t_address"
+      },
+      {
+        "astId": 3035,
+        "contract": "contracts/InstantAggregator.sol:InstantAggregator",
+        "label": "requests",
+        "offset": 0,
+        "slot": "5",
+        "type": "t_mapping(t_bytes32,t_struct(InstantAggregationRequest)3020_storage)"
+      },
+      {
+        "astId": 3042,
+        "contract": "contracts/InstantAggregator.sol:InstantAggregator",
+        "label": "lockedPerChain",
+        "offset": 0,
+        "slot": "6",
+        "type": "t_mapping(t_bytes32,t_mapping(t_uint32,t_uint256))"
+      },
+      {
+        "astId": 3049,
+        "contract": "contracts/InstantAggregator.sol:InstantAggregator",
+        "label": "expectedPerChain",
+        "offset": 0,
+        "slot": "7",
+        "type": "t_mapping(t_bytes32,t_mapping(t_uint32,t_uint256))"
+      }
+    ],
+    "types": {
+      "t_address": {
+        "encoding": "inplace",
+        "label": "address",
+        "numberOfBytes": "20"
+      },
+      "t_bool": {
+        "encoding": "inplace",
+        "label": "bool",
+        "numberOfBytes": "1"
+      },
+      "t_bytes32": {
+        "encoding": "inplace",
+        "label": "bytes32",
+        "numberOfBytes": "32"
+      },
+      "t_enum(SettlementStatus)2993": {
+        "encoding": "inplace",
+        "label": "enum InstantAggregator.SettlementStatus",
+        "numberOfBytes": "1"
+      },
+      "t_mapping(t_bytes32,t_mapping(t_uint32,t_uint256))": {
+        "encoding": "mapping",
+        "key": "t_bytes32",
+        "label": "mapping(bytes32 => mapping(uint32 => uint256))",
+        "numberOfBytes": "32",
+        "value": "t_mapping(t_uint32,t_uint256)"
+      },
+      "t_mapping(t_bytes32,t_struct(InstantAggregationRequest)3020_storage)": {
+        "encoding": "mapping",
+        "key": "t_bytes32",
+        "label": "mapping(bytes32 => struct InstantAggregator.InstantAggregationRequest)",
+        "numberOfBytes": "32",
+        "value": "t_struct(InstantAggregationRequest)3020_storage"
+      },
+      "t_mapping(t_uint32,t_bytes32)": {
+        "encoding": "mapping",
+        "key": "t_uint32",
+        "label": "mapping(uint32 => bytes32)",
+        "numberOfBytes": "32",
+        "value": "t_bytes32"
+      },
+      "t_mapping(t_uint32,t_uint256)": {
+        "encoding": "mapping",
+        "key": "t_uint32",
+        "label": "mapping(uint32 => uint256)",
+        "numberOfBytes": "32",
+        "value": "t_uint256"
+      },
+      "t_struct(InstantAggregationRequest)3020_storage": {
+        "encoding": "inplace",
+        "label": "struct InstantAggregator.InstantAggregationRequest",
+        "members": [
+          {
+            "astId": 2996,
+            "contract": "contracts/InstantAggregator.sol:InstantAggregator",
+            "label": "requestId",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_bytes32"
+          },
+          {
+            "astId": 2998,
+            "contract": "contracts/InstantAggregator.sol:InstantAggregator",
+            "label": "user",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_address"
+          },
+          {
+            "astId": 3000,
+            "contract": "contracts/InstantAggregator.sol:InstantAggregator",
+            "label": "merchant",
+            "offset": 0,
+            "slot": "2",
+            "type": "t_address"
+          },
+          {
+            "astId": 3002,
+            "contract": "contracts/InstantAggregator.sol:InstantAggregator",
+            "label": "targetAmount",
+            "offset": 0,
+            "slot": "3",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 3004,
+            "contract": "contracts/InstantAggregator.sol:InstantAggregator",
+            "label": "totalLocked",
+            "offset": 0,
+            "slot": "4",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 3006,
+            "contract": "contracts/InstantAggregator.sol:InstantAggregator",
+            "label": "destinationChain",
+            "offset": 0,
+            "slot": "5",
+            "type": "t_uint32"
+          },
+          {
+            "astId": 3008,
+            "contract": "contracts/InstantAggregator.sol:InstantAggregator",
+            "label": "refundChain",
+            "offset": 4,
+            "slot": "5",
+            "type": "t_uint32"
+          },
+          {
+            "astId": 3010,
+            "contract": "contracts/InstantAggregator.sol:InstantAggregator",
+            "label": "deadline",
+            "offset": 0,
+            "slot": "6",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 3012,
+            "contract": "contracts/InstantAggregator.sol:InstantAggregator",
+            "label": "refundGasDeposit",
+            "offset": 0,
+            "slot": "7",
+            "type": "t_uint256"
+          },
+          {
+            "astId": 3015,
+            "contract": "contracts/InstantAggregator.sol:InstantAggregator",
+            "label": "status",
+            "offset": 0,
+            "slot": "8",
+            "type": "t_enum(SettlementStatus)2993"
+          },
+          {
+            "astId": 3017,
+            "contract": "contracts/InstantAggregator.sol:InstantAggregator",
+            "label": "exists",
+            "offset": 1,
+            "slot": "8",
+            "type": "t_bool"
+          },
+          {
+            "astId": 3019,
+            "contract": "contracts/InstantAggregator.sol:InstantAggregator",
+            "label": "usdcSettledAmount",
+            "offset": 0,
+            "slot": "9",
+            "type": "t_uint256"
+          }
+        ],
+        "numberOfBytes": "320"
+      },
+      "t_uint256": {
+        "encoding": "inplace",
+        "label": "uint256",
+        "numberOfBytes": "32"
+      },
+      "t_uint32": {
+        "encoding": "inplace",
+        "label": "uint32",
+        "numberOfBytes": "4"
+      }
+    }
+  }
+}

@@ -1,0 +1,10 @@
+Warning: Found unknown `optimize` config for profile `default` defined in foundry.toml.
+Warning: Found unknown `solc-version` config for profile `default` defined in foundry.toml.
+Compiling 1 files with Solc 0.8.22
+Solc 0.8.22 finished in 1.05s
+Error: Compiler run failed:
+Error (9582): Member "log" not found or not visible after argument-dependent lookup in type(library console).
+   --> script/TestPaymentFlow.s.sol:262:9:
+    |
+262 |         console.log("USDC:", IERC20(usdc).balanceOf(deployer), "(", IERC20(usdc).balanceOf(deployer) / 1e6, "USDC )");
+    |         ^^^^^^^^^^^
